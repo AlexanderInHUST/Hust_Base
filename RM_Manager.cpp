@@ -4,16 +4,319 @@
 
 #include "RM_Manager.h"
 
+#define EPS 0.00001
+
+bool floatEqual(float a, float b) {
+    return abs(a - b) < EPS;
+}
+
+bool floatLess(float a, float b) {
+    return a + EPS < b;
+}
+
+bool checkConditions(RM_FileScan *rm_fileScan, RM_Record *record) {
+    auto conditions = rm_fileScan->conditions;
+    auto conNum = rm_fileScan->conNum;
+    bool result = true;
+
+    for (int i = 0; i < conNum; i++) {
+        auto currentCon = conditions[i];
+        char * leftValue, * rightValue;
+
+        if (currentCon.bLhsIsAttr == 0) {
+            leftValue = (char *) currentCon.Lvalue;
+        } else {
+            leftValue = new char[currentCon.LattrLength];
+            memcpy(leftValue, record->pData + sizeof(char) * currentCon.LattrOffset, sizeof(char) * currentCon.LattrLength);
+        } // load left value
+
+        if (currentCon.bRhsIsAttr == 0) {
+            rightValue = (char *) currentCon.Rvalue;
+        } else {
+            rightValue = new char[currentCon.RattrLength];
+            memcpy(rightValue, record->pData + sizeof(char) * currentCon.RattrOffset, sizeof(char) * currentCon.RattrLength);
+        } // load right value
+
+        switch (currentCon.attrType) {
+            case ints: {
+                int lValue = * (int *) leftValue;
+                int rValue = * (int *) rightValue;
+                switch (currentCon.compOp) {
+                    case EQual: {
+                        result &= (lValue == rValue);
+                        break;
+                    }
+                    case LEqual: {
+                        result &= (lValue <= rValue);
+                        break;
+                    }
+                    case NEqual: {
+                        result &= (lValue != rValue);
+                        break;
+                    }
+                    case LessT: {
+                        result &= (lValue < rValue);
+                        break;
+                    }
+                    case GEqual: {
+                        result &= (lValue >= rValue);
+                        break;
+                    }
+                    case GreatT: {
+                        result &= (lValue > rValue);
+                        break;
+                    }
+                    case NO_OP: {
+                        break;
+                    }
+                }
+                break;
+            }
+            case floats: {
+                float lValue = * (float *) leftValue;
+                float rValue = * (float *) rightValue;
+                switch (currentCon.compOp) {
+                    case EQual: {
+                        result &= floatEqual(lValue, rValue);
+                        break;
+                    }
+                    case LEqual: {
+                        result &= (floatEqual(lValue, rValue) | floatLess(lValue, rValue));
+                        break;
+                    }
+                    case NEqual: {
+                        result &= (!floatEqual(lValue, rValue));
+                        break;
+                    }
+                    case LessT: {
+                        result &= floatLess(lValue, rValue);
+                        break;
+                    }
+                    case GEqual: {
+                        result &= (floatEqual(lValue, rValue) | floatLess(rValue, lValue));
+                        break;
+                    }
+                    case GreatT: {
+                        result &= floatLess(rValue, lValue);
+                        break;
+                    }
+                    case NO_OP: {
+                        break;
+                    }
+                }
+                break;
+            }
+            case chars: {
+                switch (currentCon.compOp) {
+                    case EQual: {
+                        result &= (strcmp(leftValue, rightValue) == 0);
+                        break;
+                    }
+                    case LEqual: {
+                        result &= (strcmp(leftValue, rightValue) <= 0);
+                        break;
+                    }
+                    case NEqual: {
+                        result &= (strcmp(leftValue, rightValue) != 0);
+                        break;
+                    }
+                    case LessT: {
+                        result &= (strcmp(leftValue, rightValue) < 0);
+                        break;
+                    }
+                    case GEqual: {
+                        result &= (strcmp(leftValue, rightValue) >= 0);
+                        break;
+                    }
+                    case GreatT: {
+                        result &= (strcmp(leftValue, rightValue) > 0);
+                        break;
+                    }
+                    case NO_OP: {
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (currentCon.bLhsIsAttr == 1) {
+            delete leftValue;
+        }
+        if (currentCon.bRhsIsAttr == 1) {
+            delete rightValue;
+        }
+    }
+    return result;
+}
+
+bool GetNextRID(RM_FileHandle *fileHandle, RID *lastRID, RID *nextRID) {
+    auto pf_fileHandle = fileHandle->pf_fileHandle;
+    auto allocatedMap = pf_fileHandle->pBitmap;
+
+    PageNum lastPagePos = lastRID->pageNum / 8;
+    int lastPageInnerPos = lastRID->pageNum % 8;
+    int lastSlotPos = lastRID->slotNum / 8;
+    int lastSlotInnerPos = lastRID->slotNum % 8;
+
+    int bitmapSize = (int) ceil((double) fileHandle->rm_fileSubHeader->recordsPerPage / 8.0);
+    int allocateMapSize = (int) ceil((double) fileHandle->pf_fileHandle->pFileSubHeader->pageCount / 8.0);
+
+    auto lastDataPage = new PF_PageHandle;
+    char * src_data;
+    GetThisPage(pf_fileHandle, lastRID->pageNum, lastDataPage);
+    GetData(lastDataPage, &src_data);
+    auto slotBitmap = src_data + sizeof(int);
+    delete lastDataPage;
+    // get the slot bitmap in page
+
+    char curBitByte = slotBitmap[lastSlotPos];
+    for (int i = lastSlotInnerPos + 1; i < 8; i++) {
+        char innerMask = (char) 1 << i;
+        if ((curBitByte & innerMask) != 0) {
+            nextRID->bValid = true;
+            nextRID->pageNum = lastRID->pageNum;
+            nextRID->slotNum = lastSlotPos * 8 + i;
+            return true;
+        }
+    } // search current slot byte
+
+    for (int i = lastSlotPos + 1; i < bitmapSize; i++) {
+        curBitByte = slotBitmap[i];
+        if (curBitByte == 0) {
+            continue;
+        }
+        for (int j = 0; j < 8; j++) {
+            char innerMask = (char) 1 << j;
+            if ((curBitByte & innerMask) != 0) {
+                nextRID->bValid = true;
+                nextRID->pageNum = lastRID->pageNum;
+                nextRID->slotNum = i * 8 + j;
+                return true;
+            }
+        }
+    } // search current page
+
+    char curAllocateBitByte = allocatedMap[lastPagePos];
+    for (int i = lastPageInnerPos + 1; i < 8; i++) {
+        char innerAllocateMask = (char) 1 << i;
+        if ((curAllocateBitByte & innerAllocateMask) != 0) { // find next page
+            PageNum aimPageNum = lastPagePos * 8 + i; // possible page
+            auto aimPageHandle = new PF_PageHandle;
+            GetThisPage(fileHandle->pf_fileHandle, aimPageNum, aimPageHandle);
+            char * page_data;
+            GetData(aimPageHandle, &page_data); // get the page's data
+            char * pageBitmap = page_data + sizeof(int);
+
+            for (int j = 0; j < bitmapSize; j++) {
+                curBitByte = pageBitmap[j];
+                if (curBitByte == 0) {
+                    continue;
+                }   // if this byte is empty
+
+                for (int k = 0; k < 8; k++) {
+                    char innerMask = (char) 1 << k;
+                    if ((curBitByte & innerMask) != 0) {
+                        nextRID->bValid = true;
+                        nextRID->pageNum = aimPageNum;
+                        nextRID->slotNum = j * 8 + k;
+                        delete aimPageHandle;
+                        return true;
+                    }
+                }
+            }
+            delete aimPageHandle;
+        }
+    } // search current page byte
+
+    for (int i = lastPagePos + 1; i < allocateMapSize; i++) {
+        curAllocateBitByte = allocatedMap[i];
+        for (int j = 0; j < 8; j++) {
+            char innerAllocateMask = (char) 1 << j;
+            if ((curAllocateBitByte & innerAllocateMask) != 0) {
+                auto aimPageNum = (PageNum) (i * 8u + j);
+                auto aimPageHandle = new PF_PageHandle;
+                GetThisPage(fileHandle->pf_fileHandle, aimPageNum, aimPageHandle);
+                char * page_data;
+                GetData(aimPageHandle, &page_data); // get the page's data
+                char * pageBitmap = page_data + sizeof(int);
+
+                for (int k = 0; k < bitmapSize; k++) {
+                    curBitByte = pageBitmap[k];
+                    if (curBitByte == 0) {
+                        continue;
+                    }   // if this byte is empty
+
+                    for (int l = 0; l < 8; l++) {
+                        char innerMask = (char) 1 << l;
+                        if ((curBitByte & innerMask) != 0) {
+                            nextRID->bValid = true;
+                            nextRID->pageNum = aimPageNum;
+                            nextRID->slotNum = k * 8 + l;
+                            delete aimPageHandle;
+                            return true;
+                        }
+                    }
+                }
+                delete aimPageHandle;
+            }
+        }
+    } // search rest page
+    return false;
+}
+
 RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
-    return PF_NOBUF;
+    if (!rmFileScan->bOpen) {
+        return RM_FSCLOSED;
+    }
+
+    auto rm_fileHandle = rmFileScan->pRMFileHandle;
+    int recordSize = rm_fileHandle->rm_fileSubHeader->recordSize;
+    int dataSize = recordSize - sizeof(bool) - sizeof(RID);
+
+    RID lastRid;
+    lastRid.bValid = true;
+    lastRid.pageNum = rmFileScan->pn;
+    lastRid.slotNum = rmFileScan->sn;
+    RID nextRid;
+
+    while (GetNextRID(rm_fileHandle, &lastRid, &nextRid)) {
+        auto nextRecord = new RM_Record;
+        GetRec(rm_fileHandle, &nextRid, nextRecord);
+        if (checkConditions(rmFileScan, nextRecord)) {
+            rmFileScan->pn = nextRid.pageNum;
+            rmFileScan->sn = nextRid.slotNum;
+            rec->bValid = true;
+            rec->rid = nextRid;
+            rec->pData = new char[dataSize];
+            memcpy(rec->pData, nextRecord->pData, sizeof(char) * dataSize);
+            return SUCCESS;
+        } else {
+            lastRid = nextRid;
+        }
+    }
+
+    return RM_EOF;
 }
 
 RC OpenScan(RM_FileScan *rmFileScan, RM_FileHandle *fileHandle, int conNum, Con *conditions) {
-    return PF_NOBUF;
+    rmFileScan->bOpen = true;
+    rmFileScan->pRMFileHandle = fileHandle;
+    rmFileScan->conNum = conNum;
+    rmFileScan->conditions = conditions;
+    rmFileScan->pn = 2;
+    rmFileScan->sn = -1;
+    return SUCCESS;
 }
 
 RC CloseScan(RM_FileScan *rmFileScan) {
-    return PF_NOBUF;
+    rmFileScan->bOpen = false;
+    rmFileScan->pRMFileHandle = nullptr;
+    rmFileScan->conNum = -1;
+    rmFileScan->conditions = nullptr;
+    rmFileScan->pn = (PageNum) 2;
+    rmFileScan->sn = -1;
+    return SUCCESS;
 }
 
 RC RM_CheckWhetherRecordsExists(RM_FileHandle *fileHandle, RID rid, char ** data, PF_PageHandle ** src_pf_pageHandle) {

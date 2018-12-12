@@ -62,8 +62,8 @@ typedef struct {
     int conNum;        //扫描涉及的条件数量
     Con *conditions;    //扫描涉及的条件数组指针
     PF_PageHandle PageHandle; //处理中的页面句柄
-    PageNum pn;    //扫描即将处理的页面号
-    SlotNum sn;        //扫描即将处理的插槽号
+    PageNum pn;        //已经处理过的上一个页面号
+    SlotNum sn;        //已经处理过的上一个插槽号
 } RM_FileScan;
 
 RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec);
