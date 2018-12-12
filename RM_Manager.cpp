@@ -4,38 +4,6 @@
 
 #include "RM_Manager.h"
 
-RC RM_CheckWhetherRecordsExists(RM_FileHandle *fileHandle, RID rid, char ** data) {
-    PageNum aimPagePos = rid.pageNum;
-    SlotNum aimSlotPos = rid.slotNum;
-
-    auto pf_pageHandle = new PF_PageHandle;
-    RC openResult = GetThisPage(fileHandle->pf_fileHandle, aimPagePos, pf_pageHandle);
-    if (openResult != SUCCESS) {
-        delete pf_pageHandle;
-        return openResult;
-    } // check whether the page is allocated
-
-    if (aimSlotPos >= fileHandle->rm_fileSubHeader->recordsPerPage) {
-        delete pf_pageHandle;
-        return RM_INVALIDRID;
-    } // check whether the slot pos is beyond the max possible value
-
-    char * src_data;
-    GetData(pf_pageHandle, &src_data);
-    // get the data pointer
-
-    char * theVeryMap = src_data + sizeof(int) + (aimSlotPos / 8) * sizeof(char);
-    char innerMask = (char) 1 << (aimSlotPos % 8u);
-    if ((*theVeryMap & innerMask) == 0) {
-        delete pf_pageHandle;
-        return RM_INVALIDRID;
-    } // check whether the slot pos is valid
-
-    * data = src_data;
-    delete pf_pageHandle;
-    return SUCCESS;
-}
-
 RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
     return PF_NOBUF;
 }
@@ -48,23 +16,103 @@ RC CloseScan(RM_FileScan *rmFileScan) {
     return PF_NOBUF;
 }
 
+RC RM_CheckWhetherRecordsExists(RM_FileHandle *fileHandle, RID rid, char ** data, PF_PageHandle ** src_pf_pageHandle) {
+    PageNum aimPagePos = rid.pageNum;
+    SlotNum aimSlotPos = rid.slotNum;
+
+    auto pf_pageHandle = * src_pf_pageHandle;
+    RC openResult = GetThisPage(fileHandle->pf_fileHandle, aimPagePos, pf_pageHandle);
+    if (openResult != SUCCESS) {
+        return openResult;
+    } // check whether the page is allocated
+
+    if (aimSlotPos >= fileHandle->rm_fileSubHeader->recordsPerPage) {
+        return RM_INVALIDRID;
+    } // check whether the slot pos is beyond the max possible value
+
+    char * src_data;
+    GetData(pf_pageHandle, &src_data);
+    // get the data pointer
+
+    char * theVeryMap = src_data + sizeof(int) + (aimSlotPos / 8) * sizeof(char);
+    char innerMask = (char) 1 << (aimSlotPos % 8u);
+    if ((*theVeryMap & innerMask) == 0) {
+        return RM_INVALIDRID;
+    } // check whether the slot pos is valid
+
+    * data = src_data;
+    return SUCCESS;
+}
+
 RC UpdateRec(RM_FileHandle *fileHandle, const RM_Record *rec) {
     char * dst_data;
-    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, rec->rid, &dst_data);
+    auto pf_fileHandle = new PF_PageHandle;
+    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, rec->rid, &dst_data, &pf_fileHandle);
     if (checkResult != SUCCESS) {
         return checkResult;
     }
+
     int recordSize = fileHandle->rm_fileSubHeader->recordSize;
     int dataSize = recordSize - sizeof(bool) - sizeof(RID);
     int bitmapSize = (int) ceil((double) fileHandle->rm_fileSubHeader->recordsPerPage / 8.0);
     memcpy(dst_data + sizeof(int) + sizeof(char) * bitmapSize + sizeof(char) * recordSize * rec->rid.slotNum + sizeof(bool) + sizeof(RID),
            rec->pData, sizeof(char) * dataSize);
+
+    MarkDirty(pf_fileHandle);
+    UnpinPage(pf_fileHandle);
+    delete pf_fileHandle;
     return SUCCESS;
 }
 
 RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
+    char * src_data;
+    auto pf_pageHandle = new PF_PageHandle;
+    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, *rid, &src_data, &pf_pageHandle);
+    if (checkResult != SUCCESS) {
+        delete pf_pageHandle;
+        return checkResult;
+    }
 
-    return PF_NOBUF;
+    int recordsNum = -1;
+    memcpy(&recordsNum, src_data, sizeof(int));
+    recordsNum--;
+    bool shouldDeleteFull = recordsNum == fileHandle->rm_fileSubHeader->recordsPerPage - 1;
+    bool shouldDelete = recordsNum == 0;
+
+    if (!shouldDelete) {
+        char * theVeryMap = src_data + sizeof(int) + (rid->slotNum / 8) * sizeof(char);
+        char innerMask = (char) 1 << (rid->slotNum % 8u);
+        *theVeryMap &= ~innerMask;
+        memcpy(src_data, &recordsNum, sizeof(int));
+
+        MarkDirty(pf_pageHandle);
+        UnpinPage(pf_pageHandle);
+        // erase mark in page header bitmap
+    } else {
+        DisposePage(fileHandle->pf_fileHandle, rid->pageNum);
+        // dispose that page
+    }
+
+    char * head_data;
+    auto rm_headerPage = new PF_PageHandle;
+    GetThisPage(fileHandle->pf_fileHandle, 1, rm_headerPage);
+    GetData(rm_headerPage, &head_data);
+    memcpy(&recordsNum, head_data, sizeof(int));
+    recordsNum--;
+    memcpy(head_data, &recordsNum, sizeof(int));
+
+    if (shouldDeleteFull) {
+        char * theVeryMap = head_data + sizeof(RM_FileSubHeader) + (rid->pageNum / 8) * sizeof(char);
+        char innerMask = (char) 1 << (rid->pageNum % 8u);
+        *theVeryMap &= ~innerMask;
+    } // erase mark in full bitmap
+
+    MarkDirty(rm_headerPage);
+    UnpinPage(rm_headerPage);
+
+    delete pf_pageHandle;
+    delete rm_headerPage;
+    return SUCCESS;
 }
 
 RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData's size must be datasize
@@ -82,13 +130,14 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
             needNewPage = false;
             break;
         }
+        curPos++;
         availablePageNum -= bitmapCount;
     } // check whether need new page
 
     auto pf_pageHandle = new PF_PageHandle;
+    pf_pageHandle->bOpen = true;
     int maxRecordsPerPage = fileHandle->rm_fileSubHeader->recordsPerPage;
     int bitmapSize = (int) ceil((double) maxRecordsPerPage / 8.0);
-    pf_pageHandle->bOpen = true;
 
     if (needNewPage) {
         AllocatePage(fileHandle->pf_fileHandle, pf_pageHandle);
@@ -169,8 +218,10 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
 
 RC GetRec(RM_FileHandle *fileHandle, RID *rid, RM_Record *rec) {    // fixme : rec's memory's going to be allocated inside
     char * src_data;
-    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, *rid, &src_data);
+    auto pf_fileHandle = new PF_PageHandle;
+    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, *rid, &src_data, &pf_fileHandle);
     if (checkResult != SUCCESS) {
+        delete pf_fileHandle;
         return checkResult;
     }
 
@@ -187,6 +238,7 @@ RC GetRec(RM_FileHandle *fileHandle, RID *rid, RM_Record *rec) {    // fixme : r
            sizeof(char) * dataSize);
     // load data
 
+    delete pf_fileHandle;
     return SUCCESS;
 }
 
@@ -199,6 +251,7 @@ RC RM_CloseFile(RM_FileHandle *fileHandle) {
 RC RM_OpenFile(char *fileName, RM_FileHandle *fileHandle) {
     auto pf_fileHandle = new PF_FileHandle;
     if (OpenFile(fileName, pf_fileHandle) != SUCCESS) {
+        delete pf_fileHandle;
         return PF_FILEERR;
     }
 
@@ -222,6 +275,7 @@ RC RM_CreateFile(char *fileName, int recordSize) {
     auto pf_fileHandle = new PF_FileHandle();
     RC fileCreateCode = CreateFile(fileName);
     if (fileCreateCode != SUCCESS) {
+        delete pf_fileHandle;
         return fileCreateCode;
     }
     OpenFile(fileName, pf_fileHandle);
