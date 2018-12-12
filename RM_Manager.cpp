@@ -83,7 +83,8 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     newRecord->rid.bValid = true;
     newRecord->rid.pageNum = newRecordPagePos;
     newRecord->rid.slotNum = newRecordPos;
-    memcpy(newRecord + (sizeof(bool) + sizeof(RID)), pData, sizeof(char) * dataSize);
+    memcpy(dst_data + sizeof(int) + sizeof(char) * bitmapSize + sizeof(char) * recordSize * newRecordPos + sizeof(bool) + sizeof(RID),
+            pData, sizeof(char) * dataSize);
     recordsNum++;
     // store new data on the page
 
@@ -97,8 +98,8 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
 
     int fullMapPos = -1;
     if (recordsNum == maxRecordsPerPage) {
-        fullMapPos = newRecordPagePos / 4u;
-        char fullMapMask = (char) (1 << (newRecordPagePos % 4));
+        fullMapPos = newRecordPagePos / 8u;
+        char fullMapMask = (char) (1 << (newRecordPagePos % 8u));
         fileHandle->header_bitmap[fullMapPos] |= fullMapMask;
     } // if this page is full
 
@@ -124,13 +125,44 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     return SUCCESS;
 }
 
-RC GetRec(RM_FileHandle *fileHandle, RID *rid, RM_Record *rec) {
-    int aimPagePos = rid->pageNum;
-    int aimSlotPos = rid->slotNum;
+RC GetRec(RM_FileHandle *fileHandle, RID *rid, RM_Record *rec) {    // fixme : rec's memory's going to be allocated inside
+    PageNum aimPagePos = rid->pageNum;
+    SlotNum aimSlotPos = rid->slotNum;
 
+    auto pf_pageHandle = new PF_PageHandle;
+    RC openResult = GetThisPage(fileHandle->pf_fileHandle, aimPagePos, pf_pageHandle);
+    if (openResult != SUCCESS) {
+        return openResult;
+    } // check whether the page is allocated
 
+    int recordSize = fileHandle->rm_fileSubHeader->recordSize;
+    int dataSize = recordSize - sizeof(bool) - sizeof(RID);
+    int bitmapSize = (int) ceil((double) fileHandle->rm_fileSubHeader->recordsPerPage / 8.0);
+    if (aimSlotPos >= fileHandle->rm_fileSubHeader->recordsPerPage) {
+        return RM_INVALIDRID;
+    } // check whether the slot pos is beyond the max possible value
 
-    return PF_NOBUF;
+    char * src_data;
+    GetData(pf_pageHandle, &src_data);
+    // get the data pointer
+
+    char * theVeryMap = src_data + sizeof(int) + (aimSlotPos / 8) * sizeof(char);
+    char innerMask = (char) 1 << (aimSlotPos % 8u);
+    if ((*theVeryMap & innerMask) == 0) {
+        return RM_INVALIDRID;
+    } // check whether the slot pos is valid
+
+    rec->bValid = true;
+    rec->rid.bValid = true;
+    rec->rid.pageNum = rid->pageNum;
+    rec->rid.slotNum = rid->slotNum;
+    rec->pData = new char[dataSize];
+    memcpy(rec->pData, src_data + sizeof(int) + bitmapSize * sizeof(char) + aimSlotPos * recordSize * sizeof(char) + sizeof(bool) + sizeof(RID),
+           sizeof(char) * dataSize);
+    // load data
+
+    delete pf_pageHandle;
+    return SUCCESS;
 }
 
 RC RM_CloseFile(RM_FileHandle *fileHandle) {

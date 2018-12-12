@@ -21,6 +21,7 @@ typedef struct {
 typedef struct {
     bool bValid;         // False表示还未被读入记录
     RID rid;             // 记录的标识符
+    char *pData;         //记录所存储的数据
 } RM_Record;
 
 // Above is the detail for record
