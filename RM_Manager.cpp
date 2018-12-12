@@ -4,6 +4,38 @@
 
 #include "RM_Manager.h"
 
+RC RM_CheckWhetherRecordsExists(RM_FileHandle *fileHandle, RID rid, char ** data) {
+    PageNum aimPagePos = rid.pageNum;
+    SlotNum aimSlotPos = rid.slotNum;
+
+    auto pf_pageHandle = new PF_PageHandle;
+    RC openResult = GetThisPage(fileHandle->pf_fileHandle, aimPagePos, pf_pageHandle);
+    if (openResult != SUCCESS) {
+        delete pf_pageHandle;
+        return openResult;
+    } // check whether the page is allocated
+
+    if (aimSlotPos >= fileHandle->rm_fileSubHeader->recordsPerPage) {
+        delete pf_pageHandle;
+        return RM_INVALIDRID;
+    } // check whether the slot pos is beyond the max possible value
+
+    char * src_data;
+    GetData(pf_pageHandle, &src_data);
+    // get the data pointer
+
+    char * theVeryMap = src_data + sizeof(int) + (aimSlotPos / 8) * sizeof(char);
+    char innerMask = (char) 1 << (aimSlotPos % 8u);
+    if ((*theVeryMap & innerMask) == 0) {
+        delete pf_pageHandle;
+        return RM_INVALIDRID;
+    } // check whether the slot pos is valid
+
+    * data = src_data;
+    delete pf_pageHandle;
+    return SUCCESS;
+}
+
 RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
     return PF_NOBUF;
 }
@@ -17,7 +49,17 @@ RC CloseScan(RM_FileScan *rmFileScan) {
 }
 
 RC UpdateRec(RM_FileHandle *fileHandle, const RM_Record *rec) {
-    return PF_NOBUF;
+    char * dst_data;
+    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, rec->rid, &dst_data);
+    if (checkResult != SUCCESS) {
+        return checkResult;
+    }
+    int recordSize = fileHandle->rm_fileSubHeader->recordSize;
+    int dataSize = recordSize - sizeof(bool) - sizeof(RID);
+    int bitmapSize = (int) ceil((double) fileHandle->rm_fileSubHeader->recordsPerPage / 8.0);
+    memcpy(dst_data + sizeof(int) + sizeof(char) * bitmapSize + sizeof(char) * recordSize * rec->rid.slotNum + sizeof(bool) + sizeof(RID),
+           rec->pData, sizeof(char) * dataSize);
+    return SUCCESS;
 }
 
 RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
@@ -126,42 +168,25 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
 }
 
 RC GetRec(RM_FileHandle *fileHandle, RID *rid, RM_Record *rec) {    // fixme : rec's memory's going to be allocated inside
-    PageNum aimPagePos = rid->pageNum;
-    SlotNum aimSlotPos = rid->slotNum;
-
-    auto pf_pageHandle = new PF_PageHandle;
-    RC openResult = GetThisPage(fileHandle->pf_fileHandle, aimPagePos, pf_pageHandle);
-    if (openResult != SUCCESS) {
-        return openResult;
-    } // check whether the page is allocated
+    char * src_data;
+    RC checkResult = RM_CheckWhetherRecordsExists(fileHandle, *rid, &src_data);
+    if (checkResult != SUCCESS) {
+        return checkResult;
+    }
 
     int recordSize = fileHandle->rm_fileSubHeader->recordSize;
     int dataSize = recordSize - sizeof(bool) - sizeof(RID);
     int bitmapSize = (int) ceil((double) fileHandle->rm_fileSubHeader->recordsPerPage / 8.0);
-    if (aimSlotPos >= fileHandle->rm_fileSubHeader->recordsPerPage) {
-        return RM_INVALIDRID;
-    } // check whether the slot pos is beyond the max possible value
-
-    char * src_data;
-    GetData(pf_pageHandle, &src_data);
-    // get the data pointer
-
-    char * theVeryMap = src_data + sizeof(int) + (aimSlotPos / 8) * sizeof(char);
-    char innerMask = (char) 1 << (aimSlotPos % 8u);
-    if ((*theVeryMap & innerMask) == 0) {
-        return RM_INVALIDRID;
-    } // check whether the slot pos is valid
 
     rec->bValid = true;
     rec->rid.bValid = true;
     rec->rid.pageNum = rid->pageNum;
     rec->rid.slotNum = rid->slotNum;
     rec->pData = new char[dataSize];
-    memcpy(rec->pData, src_data + sizeof(int) + bitmapSize * sizeof(char) + aimSlotPos * recordSize * sizeof(char) + sizeof(bool) + sizeof(RID),
+    memcpy(rec->pData, src_data + sizeof(int) + bitmapSize * sizeof(char) + rid->slotNum * recordSize * sizeof(char) + sizeof(bool) + sizeof(RID),
            sizeof(char) * dataSize);
     // load data
 
-    delete pf_pageHandle;
     return SUCCESS;
 }
 
