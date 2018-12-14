@@ -4,16 +4,6 @@
 
 #include "RM_Manager.h"
 
-#define EPS 0.00001
-
-bool floatEqual(float a, float b) {
-    return abs(a - b) < EPS;
-}
-
-bool floatLess(float a, float b) {
-    return a + EPS < b;
-}
-
 bool checkConditions(RM_FileScan *rm_fileScan, RM_Record *record) {
     auto conditions = rm_fileScan->conditions;
     auto conNum = rm_fileScan->conNum;
@@ -547,6 +537,8 @@ RC GetRec(RM_FileHandle *fileHandle, RID *rid, RM_Record *rec) {    // fixme : r
 
 RC RM_CloseFile(RM_FileHandle *fileHandle) {
     CloseFile(fileHandle->pf_fileHandle);
+    fileHandle->bOpen = false;
+    delete fileHandle->pf_fileHandle;
     delete fileHandle->rm_fileSubHeader;
     return SUCCESS;
 }
@@ -586,7 +578,7 @@ RC RM_CreateFile(char *fileName, int recordSize) {
     RM_FileSubHeader rm_fileSubHeader;
     rm_fileSubHeader.nRecords = 0;
     rm_fileSubHeader.recordSize = recordSize;
-    rm_fileSubHeader.recordsPerPage = PF_PAGE_SIZE / recordSize;
+    rm_fileSubHeader.recordsPerPage = (PF_PAGE_SIZE - 8) / (recordSize + 1);
 
     auto pf_pageHandle = new PF_PageHandle();
     pf_pageHandle->bOpen = true;

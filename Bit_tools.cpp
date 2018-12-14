@@ -22,3 +22,11 @@ int least_significant_bit_pos(unsigned char v) {
     v &= (~v + 1);
     return most_significant_bit_pos(v);
 }
+
+bool floatEqual(float a, float b) {
+    return abs(a - b) < EPS;
+}
+
+bool floatLess(float a, float b) {
+    return a + EPS < b;
+}
