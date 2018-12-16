@@ -102,6 +102,9 @@ PageNum createNewNode(IX_IndexHandle *indexHandle) {
     PageNum newPageNum = 0;
     GetPageNum(pf_pageHandle, &newPageNum);
 
+    // debug:
+    printf("Create Page : %d\n", newPageNum);
+
     delete pf_pageHandle;
     delete ix_node;
     return newPageNum;
@@ -222,6 +225,8 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     AttrType attrType = indexHandle->fileHeader->attrType;
     int attrLength = indexHandle->fileHeader->attrLength;
     int keyLength = indexHandle->fileHeader->keyLength;
+    auto headerPage = new PF_PageHandle;
+    GetThisPage(indexHandle->fileHandle, 1, headerPage);
     // basic info
 
     auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, pData);
@@ -286,6 +291,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             // do not need to add up on key num
             aimNode->parent = parentPageNum;
             indexHandle->fileHeader->rootPage = parentPageNum;
+            MarkDirty(headerPage);
         }   // change the root
         // prepare those data pointer
 
@@ -421,6 +427,8 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 
         if (aimNodePageNum != 1) {
             DisposePage(indexHandle->fileHandle, aimNodePageNum);
+            // debug:
+            printf("Dispose Page : %d\n", aimNodePageNum);
         }
         delete aimNodePage;
         // Destroy formal page
@@ -428,6 +436,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         aimNode = parentNode;
         aimNodeKeyList = parentKeyList;
         aimNodeRidList = parentChildren;
+        aimNodePageNum = parentPageNum;
         aimNodePage = parentPage;
         parentPage = new PF_PageHandle;
         // aimNode = parentNode
@@ -445,6 +454,8 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 
     MarkDirty(parentPage);
     UnpinPage(parentPage);
+    UnpinPage(headerPage);
+    delete headerPage;
     delete parentPage;
     return SUCCESS;
 }
@@ -511,6 +522,75 @@ RC CloseIndexScan(IX_IndexScan *indexScan) {
     return PF_NOBUF;
 }
 
+void generateTreeNode (IX_IndexHandle * indexHandle, PageNum pageNum, Tree_Node * aim_node) {
+    int keyLength = indexHandle->fileHeader->keyLength;
+    int attrType = indexHandle->fileHeader->attrLength;
+    auto currentNodePage = new PF_PageHandle;
+    auto currentNode = getIxNode(indexHandle, pageNum, currentNodePage);
+    char *src_data;
+    GetData(currentNodePage, &src_data);
+    char *keys = src_data + currentNode->keys_offset;
+    char *rids = src_data + currentNode->rids_offset;
+
+    aim_node->keyNum = currentNode->keynum;
+    aim_node->keys = new char * [aim_node->keyNum];
+    for (int i = 0; i < aim_node->keyNum; i++) {
+        aim_node->keys[i] = new char[keyLength];
+        memcpy(aim_node->keys[i], keys + i * keyLength, sizeof(char) * keyLength);
+        // cpy all keys
+    }
+    aim_node->parent = nullptr;
+    aim_node->sibling = nullptr;
+
+    if (currentNode->is_leaf) {
+        aim_node->firstChild = nullptr;
+        return;
+    } else {
+        aim_node->firstChild = new Tree_Node[aim_node->keyNum + 1];
+    }
+
+    for (int i = 0; i < aim_node->keyNum + 1; i++) {
+        char *curChild = rids + i * sizeof(PageNum);
+        PageNum curChildPageNum = 0;
+        memcpy(&curChildPageNum, curChild, sizeof(PageNum));
+        generateTreeNode(indexHandle, curChildPageNum, &aim_node->firstChild[i]);
+        aim_node->firstChild[i].parent = aim_node;
+    } // create all children
+}
+
+void generateTreeNodeSibling (Tree_Node * aim_node) {
+    if (aim_node->firstChild == nullptr) {
+        return;
+    }
+
+    for (int i = 0; i < aim_node->keyNum + 1; i++) {
+        if (i != aim_node->keyNum) {
+            aim_node->firstChild[i].sibling = &aim_node->firstChild[i + 1];
+        } else {
+            if (aim_node->sibling != nullptr) {
+                aim_node->firstChild[i].sibling = &aim_node->sibling->firstChild[0];
+            } else {
+                aim_node->firstChild[i].sibling = nullptr;
+            }
+        }
+    } // create all sibling
+
+    for (int i = 0; i < aim_node->keyNum + 1; i++) {
+        generateTreeNodeSibling(&aim_node->firstChild[i]);
+    } // create for all children
+}
+
+
 RC GetIndexTree(char *fileName, Tree *index) {
-    return PF_NOBUF;
+    auto indexHandle = new IX_IndexHandle;
+    OpenIndex(fileName, indexHandle);
+
+    PageNum rootPage = indexHandle->fileHeader->rootPage;
+    index->attrType = indexHandle->fileHeader->attrType;
+    index->attrLength = indexHandle->fileHeader->attrLength;
+    index->order = indexHandle->fileHeader->order;
+    index->root = new Tree_Node;
+    generateTreeNode(indexHandle, rootPage, index->root);
+    generateTreeNodeSibling(index->root);
+    return SUCCESS;
 }
