@@ -227,9 +227,13 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     int keyLength = indexHandle->fileHeader->keyLength;
     auto headerPage = new PF_PageHandle;
     GetThisPage(indexHandle->fileHandle, 1, headerPage);
+
+    char realKey[keyLength];
+    memcpy(realKey, pData, sizeof(char) * attrLength);
+    memcpy(realKey + attrLength, rid, sizeof(RID));
     // basic info
 
-    auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, pData);
+    auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, realKey);
     auto aimNodePage = new PF_PageHandle;
     auto aimNode = getIxNode(indexHandle, aimNodePageNum, aimNodePage);
     char *src_data;
@@ -241,7 +245,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     int addPos = -1;
     for (int i = 0; i < aimNode->keynum; i++) {
         char *curKey = aimNodeKeyList + sizeof(char) * i * keyLength;
-        if (compareKey(curKey, pData, attrType, attrLength) > 0) {
+        if (compareKey(curKey, realKey, attrType, attrLength) > 0) {
             addPos = i;
             break;
         }
@@ -250,7 +254,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         addPos = aimNode->keynum;
     } // confirm insert pos
 
-    addToList(keyLength, aimNodeKeyList, aimNode->keynum, pData, addPos);
+    addToList(keyLength, aimNodeKeyList, aimNode->keynum, realKey, addPos);
     addToList(sizeof(RID), aimNodeRidList, aimNode->keynum, (char *) rid, addPos);
     aimNode->keynum++;
     // for leaf, key.size = children.size
@@ -259,6 +263,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     if (isValid) {
         MarkDirty(aimNodePage);
         UnpinPage(aimNodePage);
+        delete headerPage;
         delete aimNodePage;
         return SUCCESS;
     }
@@ -297,7 +302,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 
         for (int i = 0; i < parentNode->keynum; i++) {
             char *curKey = parentKeyList + sizeof(char) * i * keyLength;
-            if (compareKey(curKey, pData, attrType, attrLength) > 0) {
+            if (compareKey(curKey, realKey, attrType, attrLength) > 0) {
                 numAsChild = i;
                 break;
             }
@@ -461,13 +466,279 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 }
 
 RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
-    return PF_NOBUF;
+    AttrType attrType = indexHandle->fileHeader->attrType;
+    int attrLength = indexHandle->fileHeader->attrLength;
+    int keyLength = indexHandle->fileHeader->keyLength;
+    int order = indexHandle->fileHeader->order;
+    auto headerPage = new PF_PageHandle;
+    GetThisPage(indexHandle->fileHandle, 1, headerPage);
+    // basic info
+
+    int deletePos = -1;
+    auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, pData);
+    auto aimNodePage = new PF_PageHandle;
+    auto aimNode = getIxNode(indexHandle, aimNodePageNum, aimNodePage);
+    char *src_data;
+    GetData(aimNodePage, &src_data);
+    char *aimNodeKeyList = src_data + aimNode->keys_offset;
+    char *aimNodeRidList = src_data + aimNode->rids_offset;
+    for (int i = 0; i < aimNode->keynum; i++) {
+        char *curKey = aimNodeKeyList + sizeof(char) * i * keyLength;
+        if (compareKey(curKey, pData, attrType, attrLength) == 0) {
+            deletePos = i;
+            break;
+        }
+    }
+    if (deletePos == -1) {
+        return IX_INVALIDKEY;
+    } // check whether the key exists
+
+    char dumpKey[keyLength], dumpRid[sizeof(RID)], dumpPageNum[sizeof(PageNum)];
+    removeFromList(keyLength, aimNodeKeyList, aimNode->keynum, dumpKey, deletePos);
+    removeFromList(sizeof(RID), aimNodeRidList, aimNode->keynum, dumpRid, deletePos);
+    aimNode->keynum--;
+    bool isValid = checkValid(aimNode, order);
+    // delete the value
+
+    if (isValid) {
+        MarkDirty(aimNodePage);
+        UnpinPage(aimNodePage);
+        delete headerPage;
+        delete aimNodePage;
+        return SUCCESS;
+    }
+
+    PageNum parentPageNum;
+    auto parentPage = new PF_PageHandle;
+    IX_Node * parentNode;
+    char * parentKeyList, * parentChildren;
+    char * parent_src_data;
+
+    while (!isValid) {
+        int numAsChild = -1;
+        parentPageNum = aimNode->parent;
+        parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
+        GetData(parentPage, &parent_src_data);
+        parentKeyList = parent_src_data + parentNode->keys_offset;
+        parentChildren = parent_src_data + parentNode->rids_offset;
+        // initialize parent's info
+
+        for (int i = 0; i < parentNode->keynum; i++) {
+            char *curKey = parentKeyList + sizeof(char) * i * keyLength;
+            if (compareKey(curKey, pData, attrType, attrLength) > 0) {
+                numAsChild = i;
+                break;
+            }
+        }
+        if (numAsChild == -1) {
+            numAsChild = parentNode->keynum;
+        } // find pos as a child
+
+        PageNum leftSiblingPageNum = 0;
+        PageNum rightSiblingPageNum = 0;
+        IX_Node * leftSiblingNode = nullptr, * rightSiblingNode = nullptr;
+        char * leftSiblingKeyList, * leftSiblingChildList;
+        char * rightSiblingKeyList, * rightSiblingChildList;
+        char * leftSiblingSrcData, * rightSiblingSrcData;
+
+        bool isLeftEnough = false, isRightEnough = false;
+        auto leftSiblingPage = new PF_PageHandle;
+        auto rightSiblingPage = new PF_PageHandle;
+        if (numAsChild != 0) {
+            getFromList(sizeof(PageNum), parentChildren, (char *) &leftSiblingPageNum, numAsChild - 1);
+            leftSiblingNode = getIxNode(indexHandle, leftSiblingPageNum, leftSiblingPage);
+            isLeftEnough = (leftSiblingNode->keynum > (ceil((double) order / 2.0)));
+            GetData(leftSiblingPage, &leftSiblingSrcData);
+            leftSiblingKeyList = leftSiblingSrcData + leftSiblingNode->keys_offset;
+            leftSiblingChildList = leftSiblingSrcData + leftSiblingNode->rids_offset;
+        }
+        if (numAsChild != parentNode->keynum) {
+            getFromList(sizeof(PageNum), parentChildren, (char *) &rightSiblingPageNum, numAsChild + 1);
+            rightSiblingNode = getIxNode(indexHandle, rightSiblingPageNum, rightSiblingPage);
+            isRightEnough = (rightSiblingNode->keynum > (ceil((double) order / 2.0)));
+            GetData(rightSiblingPage, &rightSiblingSrcData);
+            rightSiblingKeyList = rightSiblingSrcData + rightSiblingNode->keys_offset;
+            rightSiblingChildList = rightSiblingSrcData + rightSiblingNode->rids_offset;
+        } // find its left and right sibling and check whether it's enough
+
+        if (isLeftEnough) {
+            if (aimNode->is_leaf) {
+                char borrowedKey[keyLength], borrowedRid[sizeof(RID)];
+                removeFromList(keyLength, leftSiblingKeyList, leftSiblingNode->keynum, borrowedKey, leftSiblingNode->keynum - 1);
+                removeFromList(sizeof(RID), leftSiblingChildList, leftSiblingNode->keynum, borrowedRid, leftSiblingNode->keynum - 1);
+                leftSiblingNode->keynum--;
+                // remove key
+
+                addToList(keyLength, aimNodeKeyList, aimNode->keynum, borrowedKey, 0);
+                addToList(sizeof(RID), aimNodeRidList, aimNode->keynum, borrowedRid, 0);
+                aimNode->keynum++;
+                // add key
+
+                setToList(keyLength, parentKeyList, borrowedKey, numAsChild - 1);
+                // set parent's key
+            } else {
+                char borrowedKey[keyLength], newParentKey[keyLength];
+                char borrowedChildPageNum[sizeof(PageNum)];
+
+                getFromList(keyLength, parentKeyList, borrowedKey, numAsChild - 1);
+                removeFromList(keyLength, leftSiblingKeyList, leftSiblingNode->keynum, newParentKey, leftSiblingNode->keynum - 1);
+                removeFromList(sizeof(PageNum), leftSiblingChildList, leftSiblingNode->keynum + 1, borrowedChildPageNum, leftSiblingNode->keynum);
+                leftSiblingNode->keynum--;
+
+                addToList(keyLength, aimNodeKeyList, aimNode->keynum, borrowedKey, 0);
+                addToList(sizeof(PageNum), aimNodeRidList, aimNode->keynum + 1, borrowedChildPageNum, 0);
+                aimNode->keynum++;
+
+                setToList(keyLength, parentKeyList, newParentKey, numAsChild - 1);
+            }
+
+
+        } else if (isRightEnough) {
+            if (aimNode->is_leaf) {
+                char borrowedKey[keyLength], borrowedRid[sizeof(RID)];
+                removeFromList(keyLength, rightSiblingKeyList, rightSiblingNode->keynum, borrowedKey, 0);
+                removeFromList(sizeof(RID), rightSiblingChildList, rightSiblingNode->keynum, borrowedRid, 0);
+                rightSiblingNode->keynum--;
+                // remove key
+
+                addToList(keyLength, aimNodeKeyList, aimNode->keynum, borrowedKey, aimNode->keynum);
+                addToList(sizeof(RID), aimNodeRidList, aimNode->keynum, borrowedRid, aimNode->keynum);
+                aimNode->keynum++;
+                // add key
+
+                char newKey[keyLength];
+                getFromList(keyLength, rightSiblingKeyList, newKey, 0);
+                setToList(keyLength, parentKeyList, newKey, numAsChild);
+                // set parent's key
+            } else {
+                char borrowedKey[keyLength], newParentKey[keyLength];
+                char borrowedChildPageNum[sizeof(PageNum)];
+
+                getFromList(keyLength, parentKeyList, borrowedKey, numAsChild);
+                removeFromList(keyLength, rightSiblingKeyList, rightSiblingNode->keynum, newParentKey, 0);
+                removeFromList(sizeof(PageNum), rightSiblingChildList, rightSiblingNode->keynum + 1, borrowedChildPageNum, 0);
+                rightSiblingNode->keynum--;
+
+                addToList(keyLength, aimNodeKeyList, aimNode->keynum, borrowedKey, aimNode->keynum);
+                addToList(sizeof(PageNum), aimNodeRidList, aimNode->keynum + 1, borrowedChildPageNum, aimNode->keynum + 1);
+                aimNode->keynum++;
+
+                setToList(keyLength, parentKeyList, newParentKey, numAsChild);
+            }
+        } else {
+            if (leftSiblingNode == nullptr) {
+                leftSiblingNode = aimNode;
+                leftSiblingKeyList = aimNodeKeyList;
+                leftSiblingChildList = aimNodeRidList;
+                leftSiblingPageNum = aimNodePageNum;
+                leftSiblingPage = aimNodePage;
+                // leftSibling = aimNode
+
+                aimNode = rightSiblingNode;
+                aimNodeKeyList = rightSiblingKeyList;
+                aimNodeRidList = rightSiblingChildList;
+                aimNodePageNum = rightSiblingPageNum;
+                aimNodePage = rightSiblingPage;
+                // aimNode = rightSibling
+
+                numAsChild++;
+            } // to ensure aim node always has a left sibling
+
+            if (aimNode == nullptr) {
+                return FAIL; // this would never happen
+            } else if (aimNode->is_leaf) {
+                memcpy(leftSiblingKeyList + keyLength * leftSiblingNode->keynum, aimNodeKeyList, keyLength * aimNode->keynum);
+                memcpy(leftSiblingChildList + sizeof(RID) * leftSiblingNode->keynum, aimNodeRidList, sizeof(RID) * aimNode->keynum);
+                leftSiblingNode->keynum += aimNode->keynum;
+                // addall
+
+                removeFromList(keyLength, parentKeyList, parentNode->keynum, dumpKey, numAsChild - 1);
+                removeFromList(sizeof(PageNum), parentChildren, parentNode->keynum + 1, dumpPageNum, numAsChild);
+                parentNode->keynum--;
+
+                leftSiblingNode->brother = aimNode->parent;
+            } else {
+                char downParentKey[keyLength];
+                int leftSiblingNodeChildNum = leftSiblingNode->keynum + 1;
+                getFromList(keyLength, parentKeyList, downParentKey, numAsChild - 1);
+                addToList(keyLength, leftSiblingKeyList, leftSiblingNode->keynum, downParentKey, leftSiblingNode->keynum);
+                leftSiblingNode->keynum++;
+
+                memcpy(leftSiblingKeyList + keyLength * leftSiblingNode->keynum, aimNodeKeyList, keyLength * aimNode->keynum);
+                leftSiblingNode->keynum += aimNode->keynum;
+
+                for (int i = 0; i < leftSiblingNodeChildNum; i++) {
+                    PageNum curChildPageNum;
+                    memcpy(&curChildPageNum, leftSiblingChildList + sizeof(PageNum) * i, sizeof(PageNum));
+                    auto curChildPage = new PF_PageHandle;
+                    auto curChildNode = getIxNode(indexHandle, curChildPageNum, curChildPage);
+                    curChildNode->parent = leftSiblingPageNum;
+
+                    MarkDirty(curChildPage);
+                    UnpinPage(curChildPage);
+                    delete curChildPage;
+                }
+
+                memcpy(leftSiblingChildList + sizeof(PageNum) * leftSiblingNodeChildNum, aimNodeRidList, sizeof(PageNum) * aimNode->keynum + 1);
+                // add all children
+                removeFromList(sizeof(PageNum), parentChildren, parentNode->keynum + 1, dumpPageNum, numAsChild);
+                removeFromList(keyLength, parentKeyList, parentNode->keynum, dumpKey, numAsChild - 1);
+                parentNode->keynum--;
+
+                if (parentNode->keynum == 0) {
+                    leftSiblingNode->parent = 0;
+                    indexHandle->fileHeader->rootPage = leftSiblingPageNum;
+                    MarkDirty(headerPage);
+                    break;
+                }
+            }
+
+            if (aimNodePageNum != 1) {
+                DisposePage(indexHandle->fileHandle, aimNodePageNum);
+            }
+        }
+
+        delete aimNodePage;
+        aimNode = parentNode;
+        aimNodeKeyList = parentKeyList;
+        aimNodeRidList = parentChildren;
+        aimNodePageNum = parentPageNum;
+        aimNodePage = parentPage;
+        parentPage = new PF_PageHandle;
+        // aimNode = parentNode
+        isValid = checkValid(aimNode, order);
+
+        auto rootPageHandle = new PF_PageHandle;
+        auto rootNode = getIxNode(indexHandle, indexHandle->fileHeader->rootPage, rootPageHandle);
+        if (rootNode->keynum == 0) {
+            char * rootSrcData;
+            GetData(rootPageHandle, &rootSrcData);
+            auto rootChild = rootSrcData + rootNode->rids_offset;
+            PageNum rootFirstChild = 0;
+            memcpy(&rootFirstChild, rootChild, sizeof(PageNum));
+            auto rootFirstChildPageHandle = new PF_PageHandle;
+            auto rootFirstChildNode = getIxNode(indexHandle, rootFirstChild, rootFirstChildPageHandle);
+            rootFirstChildNode->parent = 0;
+
+            MarkDirty(rootFirstChildPageHandle);
+            UnpinPage(rootFirstChildPageHandle);
+            if (indexHandle->fileHeader->rootPage != 1) {
+                DisposePage(indexHandle->fileHandle, indexHandle->fileHeader->rootPage);
+            }
+
+            indexHandle->fileHeader->rootPage = rootFirstChild;
+            MarkDirty(headerPage);
+        }
+        delete rootPageHandle;
+    }
+
+    return SUCCESS;
 }
 
 void traverseAll(IX_IndexHandle *indexHandle) {
     PageNum currentPage = indexHandle->fileHeader->rootPage;
     int keyLength = indexHandle->fileHeader->keyLength;
-    int attrType = indexHandle->fileHeader->attrLength;
+    int attrLength = indexHandle->fileHeader->attrLength;
     auto currentNodePage = new PF_PageHandle;
     auto currentNode = getIxNode(indexHandle, currentPage, currentNodePage);
     char *src_data;
@@ -497,9 +768,11 @@ void traverseAll(IX_IndexHandle *indexHandle) {
 
             int prefixKey = 0;
             memcpy(&prefixKey, curKey, sizeof(int));
+            RID aftKey;
+            memcpy(&aftKey, curKey + attrLength, sizeof(RID));
             RID tmpRid;
             memcpy(&tmpRid, curRid, sizeof(RID));
-            printf("Key : %d, Rid : pageNum %d slotNum %d\n", prefixKey, tmpRid.pageNum, tmpRid.slotNum);
+            printf("Key : %d - %d, %d, Rid : pageNum %d slotNum %d\n", prefixKey, aftKey.pageNum, aftKey.slotNum, tmpRid.pageNum, tmpRid.slotNum);
         }
 
         currentPage = currentNode->brother;
@@ -524,7 +797,7 @@ RC CloseIndexScan(IX_IndexScan *indexScan) {
 
 void generateTreeNode (IX_IndexHandle * indexHandle, PageNum pageNum, Tree_Node * aim_node) {
     int keyLength = indexHandle->fileHeader->keyLength;
-    int attrType = indexHandle->fileHeader->attrLength;
+    int attrLength = indexHandle->fileHeader->attrLength;
     auto currentNodePage = new PF_PageHandle;
     auto currentNode = getIxNode(indexHandle, pageNum, currentNodePage);
     char *src_data;
@@ -579,7 +852,6 @@ void generateTreeNodeSibling (Tree_Node * aim_node) {
         generateTreeNodeSibling(&aim_node->firstChild[i]);
     } // create for all children
 }
-
 
 RC GetIndexTree(char *fileName, Tree *index) {
     auto indexHandle = new IX_IndexHandle;
