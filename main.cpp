@@ -45,40 +45,52 @@ int main() {
     rid.bValid = true;
     rid.slotNum = 1;
     int testData = rid.pageNum = 5;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 8;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 10;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 15;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 16;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 17;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 18;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
 
-    testData = rid.pageNum = 6;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 9;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 19;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 20;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    testData = rid.pageNum = 21;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
     testData = rid.pageNum = 22;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
 
-    testData = rid.pageNum = 7;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+    testData = rid.pageNum = 15;
+    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
 
+//    testData = rid.pageNum = 7;
+//    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 8;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 10;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 15;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 16;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 17;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 18;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//
+//    testData = rid.pageNum = 6;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 9;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 19;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 20;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 21;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    testData = rid.pageNum = 22;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//
+//    testData = rid.pageNum = 7;
+//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//
     traverseAll(ix_indexHandle);
     CloseIndex(ix_indexHandle);
 
-//    auto tree = new Tree;
-//    GetIndexTree((char *) "../test.ix", tree);
-    printf("");
+
+
+    auto tree = new Tree;
+    GetIndexTree((char *) "../test.ix", tree);
+    printf("123");
 }
