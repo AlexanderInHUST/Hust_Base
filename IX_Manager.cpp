@@ -83,7 +83,11 @@ PageNum createNewNode(IX_IndexHandle *indexHandle) {
     auto pf_fileHandle = indexHandle->fileHandle;
     auto pf_pageHandle = new PF_PageHandle();
     pf_pageHandle->bOpen = true;
-    AllocatePage(pf_fileHandle, pf_pageHandle);
+    RC result = AllocatePage(pf_fileHandle, pf_pageHandle);
+    if (result != SUCCESS) {
+        printf("Error code: %d when creating new node\n", result);
+        exit(1);
+    }
 
     int keys_size = (PF_PAGE_SIZE - sizeof(IX_FileHeader) - sizeof(IX_Node)) / (2 * sizeof(RID) + indexHandle->fileHeader->attrLength);
 
@@ -464,6 +468,10 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         auto leftSiblingNode = getIxNode(indexHandle, leftSiblingPageNum, leftSiblingPage);
         auto rightSiblingNode = getIxNode(indexHandle, rightSiblingPageNum, rightSiblingPage);
 
+        if (newLeftChildPageNum == 13 || newRightChildPageNum == 13 || rightSiblingPageNum == 13) {
+            printf("fuck here!");
+        }
+
         if (leftSiblingPageNum != 0) {
             leftSiblingNode->brother = newLeftChildPageNum;
         }
@@ -730,6 +738,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 
                 memcpy(leftSiblingKeyList + keyLength * leftSiblingNode->keynum, aimNodeKeyList, keyLength * aimNode->keynum);
                 leftSiblingNode->keynum += aimNode->keynum;
+                leftSiblingNode->brother = aimNode->brother;
 
                 for (int i = 0; i < aimNodeChildNum; i++) {
                     PageNum curChildPageNum;
@@ -787,6 +796,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             auto rootFirstChildPageHandle = new PF_PageHandle;
             auto rootFirstChildNode = getIxNode(indexHandle, rootFirstChild, rootFirstChildPageHandle);
             rootFirstChildNode->parent = 0;
+            rootFirstChildNode->brother = 0;
 
             MarkDirty(rootFirstChildPageHandle);
             UnpinPage(rootFirstChildPageHandle);

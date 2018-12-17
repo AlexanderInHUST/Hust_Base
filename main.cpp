@@ -46,84 +46,23 @@ int main() {
     rid.slotNum = 1;
     int testData = rid.pageNum = 5;
 
-//    testData = rid.pageNum = 22;
-//    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-//
-//    testData = rid.pageNum = 15;
-//    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-//
-//    testData = rid.pageNum = 7;
-//    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 8;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 10;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 15;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 16;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 17;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 18;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//
-//    testData = rid.pageNum = 6;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 9;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 19;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 20;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 21;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 22;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//
-//    testData = rid.pageNum = 7;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 23;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    testData = rid.pageNum = 24;
-//    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-////
-
-//    for (int i = 0; i < 30; i++) {
-//        testData = rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
-//    for (int i = 0; i < 15; i++) {
-//        testData = rid.pageNum = i;
-//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
-//    for (int i = 0; i < 10; i++) {
-//        testData = rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
-
-    for (int i = 150; i >= 120; i -= 3) {
-        testData = rid.pageNum = i - 30;
+    for (int i = 0; i <= 50; i++) {
+        testData = rid.pageNum = i;
         InsertEntry(ix_indexHandle, (char *) &testData, &rid);
     }
 
-//    for (int i = 100; i >= 0; i -= 3) {
-//        testData = rid.pageNum = i - 30;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
-//    for (int i = 1; i <= 2; i++) {
-//        testData = rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//        testData = rid.pageNum = i + 3;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//        testData = rid.pageNum = i + 6;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
-//    for (int i = -10; i < 10; i++) {
-//        testData = rid.pageNum = i;
-//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
+    for (int i = 0; i < 30; i++) {
+        testData = rid.pageNum = i;
+        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+    }
+
+    for (int i = 0; i < 6; i++) {
+        testData = rid.pageNum = i;
+        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+    }
+
+    testData = rid.pageNum = 6;
+    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
 
 
     traverseAll(ix_indexHandle);
@@ -132,6 +71,6 @@ int main() {
 
 
     auto tree = new Tree;
-//    GetIndexTree((char *) "../test.ix", tree);
-//    printf("123");
+    GetIndexTree((char *) "../test.ix", tree);
+    printf("123");
 }
