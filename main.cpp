@@ -66,9 +66,9 @@ int main() {
 //        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
 //    }
 
-    int tmp = -1;
+    int tmp = 42;
     auto indexScan = new IX_IndexScan;
-    OpenIndexScan(indexScan, ix_indexHandle, GreatT, (char *) &tmp);
+    OpenIndexScan(indexScan, ix_indexHandle, EQual, (char *) &tmp);
     while (true) {
         RID tmpRid;
         int isExist = IX_GetNextEntry(indexScan, &tmpRid);

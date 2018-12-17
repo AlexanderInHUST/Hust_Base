@@ -255,8 +255,10 @@ RC findStartKey(IX_IndexScan *indexScan, char *key) {
     }
 
     currentPage = findKey(indexScan->pIXIndexHandle, attrType, attrLength, keyLength, key);
+    currentNode = getIxNode(indexHandle, currentPage, currentNodePage);
     GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
     GetData(currentNodePage, &src_data);
+
     char *keys = src_data + currentNode->keys_offset;
     for (int i = 0; i < currentNode->keynum; i++) {
         char *cur_key = keys + keyLength * i;
@@ -266,8 +268,8 @@ RC findStartKey(IX_IndexScan *indexScan, char *key) {
             return INDEX_EXIST;
         }
     }
-    indexScan->pnNext = currentPage;
-    indexScan->ridIx = currentNode->keynum;
+    indexScan->pnNext = currentNode->brother;
+    indexScan->ridIx = 0;
     return INDEX_NOT_EXIST;
 }
 
@@ -965,12 +967,21 @@ RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid) {
     auto attrLength = indexScan->pIXIndexHandle->fileHeader->attrLength;
     auto attrType = indexScan->pIXIndexHandle->fileHeader->attrType;
     char realKey[keyLength];
+    bool isNew = false;
     memcpy(realKey, indexScan->value, sizeof(attrLength));
-    memset(realKey + attrLength, 0, sizeof(RID));
+    RID dumpRid;
+    if (indexScan->compOp == GreatT) {
+        dumpRid.pageNum = (PageNum) -1;
+        dumpRid.pageNum = (unsigned) -1;
+    } else {
+        dumpRid.pageNum = 0;
+        dumpRid.slotNum = 0;
+    }
+    memcpy(realKey + attrLength, &dumpRid, sizeof(RID));
 
     if (indexScan->pnNext == -1) {
+        isNew = true;
         findStartKey(indexScan, realKey);
-        indexScan->ridIx++;
     }
 
     if (indexScan->pnNext == 0) {
@@ -980,11 +991,10 @@ RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid) {
     auto aimNodePage = new PF_PageHandle;
     auto aimNode = getIxNode(indexScan->pIXIndexHandle, indexScan->pnNext, aimNodePage);
 
-    if (indexScan->compOp == GreatT) {
+    if (isNew) {
         if (indexScan->ridIx >= aimNode->keynum) {
             indexScan->ridIx = 0;
             indexScan->pnNext = aimNode->brother;
-            aimNode = getIxNode(indexScan->pIXIndexHandle, indexScan->pnNext, aimNodePage);
         }
     }
 
