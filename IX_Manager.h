@@ -41,9 +41,10 @@ typedef struct {
     IX_IndexHandle *pIXIndexHandle; //指向索引文件操作的指针
     CompOp compOp;                  /* 用于比较的操作符*/
     char *value;                    /* 与属性行比较的值 */
-    PF_PageHandle
-    pfPageHandles[PF_BUFFER_SIZE]; // 固定在缓冲区页面所对应的页面操作列表
+//    PF_PageHandle
+//    pfPageHandles[PF_BUFFER_SIZE]; // 固定在缓冲区页面所对应的页面操作列表
     PageNum pnNext;                    //下一个将要被读入的页面号
+    int ridIx;
 } IX_IndexScan;
 
 typedef struct Tree_Node {

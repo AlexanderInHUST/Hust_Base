@@ -147,9 +147,9 @@ int compareKey(char *key1, char *key2, AttrType attrType, int attrLength) {
     RID *rid1 = (RID *) (key1 + (sizeof(char) * attrLength));
     RID *rid2 = (RID *) (key2 + (sizeof(char) * attrLength));
     if (rid1->pageNum != rid2->pageNum) {
-        return rid1->pageNum > rid2->pageNum ? 1 : -1;
+        return rid1->pageNum > rid2->pageNum ? 2 : -2;
     } else if (rid1->slotNum != rid2->slotNum) {
-        return rid1->slotNum > rid2->slotNum ? 1 : -1;
+        return rid1->slotNum > rid2->slotNum ? 2 : -2;
     } else {
         return 0;
     }
@@ -191,6 +191,84 @@ PageNum findKey(IX_IndexHandle *indexHandle, AttrType attrType, int attrLength, 
     UnpinPage(currentNodePage);
     delete currentNodePage;
     return currentPage;
+}
+
+bool checkConditions(IX_IndexScan *indexScan, char * check_value) {
+    auto keyLength = indexScan->pIXIndexHandle->fileHeader->keyLength;
+    auto attrLength = indexScan->pIXIndexHandle->fileHeader->attrLength;
+    auto attrType = indexScan->pIXIndexHandle->fileHeader->attrType;
+    char comparedKey[keyLength];
+    memcpy(comparedKey, indexScan->value, sizeof(attrLength));
+    memset(comparedKey + attrLength, 0, sizeof(RID));
+    int compare_result = compareKey(check_value, comparedKey, attrType, attrLength);
+    compare_result = (compare_result == -2 || compare_result == 2) ? 0 : compare_result;
+
+    switch (indexScan->compOp) {
+        case EQual: {
+            return compare_result == 0;
+        }
+        case LEqual: {
+            return compare_result <= 0;
+        }
+        case NEqual: {
+            return compare_result != 0;
+        }
+        case LessT: {
+            return compare_result < 0;
+        }
+        case GEqual: {
+            return compare_result >= 0;
+        }
+        case GreatT: {
+            return compare_result > 0;
+        }
+        case NO_OP: {
+            return true;
+        }
+    }
+}
+
+RC findStartKey(IX_IndexScan *indexScan, char *key) {
+    auto indexHandle = indexScan->pIXIndexHandle;
+    auto keyLength = indexHandle->fileHeader->keyLength;
+    auto attrType = indexHandle->fileHeader->attrType;
+    auto attrLength = indexHandle->fileHeader->attrLength;
+
+    PageNum currentPage = indexHandle->fileHeader->rootPage;
+    auto currentNodePage = new PF_PageHandle;
+    auto currentNode = getIxNode(indexHandle, currentPage, currentNodePage);
+    char *src_data;
+    UnpinPage(currentNodePage);
+    delete currentNodePage;
+
+    if (indexScan->compOp == LessT || indexScan->compOp == LEqual || indexScan->compOp == NO_OP) {
+        while (!currentNode->is_leaf) {
+            GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
+            GetData(currentNodePage, &src_data);
+            char *rids = src_data + currentNode->rids_offset;
+            memcpy(&currentPage, rids, sizeof(PageNum));
+            currentNode = getIxNode(indexHandle, currentPage, currentNodePage);
+        }
+        indexScan->pnNext = currentPage;
+        indexScan->ridIx = 0;
+        return INDEX_EXIST;
+    }
+
+    currentPage = findKey(indexScan->pIXIndexHandle, attrType, attrLength, keyLength, key);
+    GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
+    GetData(currentNodePage, &src_data);
+    char *keys = src_data + currentNode->keys_offset;
+    for (int i = 0; i < currentNode->keynum; i++) {
+        char *cur_key = keys + keyLength * i;
+        if (compareKey(cur_key, key, attrType, attrLength) >= 0) {
+            indexScan->pnNext = currentPage;
+            indexScan->ridIx = i;
+            return INDEX_EXIST;
+        }
+    }
+    indexScan->pnNext = currentPage;
+    indexScan->ridIx = currentNode->keynum;
+    return INDEX_NOT_EXIST;
 }
 
 void addToList(int keyLength, char *keyList, int list_size, char *key, int pos) {
@@ -467,10 +545,6 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         auto rightSiblingPage = new PF_PageHandle;
         auto leftSiblingNode = getIxNode(indexHandle, leftSiblingPageNum, leftSiblingPage);
         auto rightSiblingNode = getIxNode(indexHandle, rightSiblingPageNum, rightSiblingPage);
-
-        if (newLeftChildPageNum == 13 || newRightChildPageNum == 13 || rightSiblingPageNum == 13) {
-            printf("fuck here!");
-        }
 
         if (leftSiblingPageNum != 0) {
             leftSiblingNode->brother = newLeftChildPageNum;
@@ -868,15 +942,75 @@ void traverseAll(IX_IndexHandle *indexHandle) {
 }
 
 RC OpenIndexScan(IX_IndexScan *indexScan, IX_IndexHandle *indexHandle, CompOp compOp, char *value) {
-    return PF_NOBUF;
-}
-
-RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid) {
-    return PF_NOBUF;
+    indexScan->bOpen = true;
+    indexScan->pIXIndexHandle = indexHandle;
+    indexScan->compOp = compOp;
+    indexScan->value = value;
+    indexScan->pnNext = (PageNum) -1;
+    indexScan->ridIx = 0;
+    return SUCCESS;
 }
 
 RC CloseIndexScan(IX_IndexScan *indexScan) {
-    return PF_NOBUF;
+    indexScan->bOpen = false;
+    indexScan->pIXIndexHandle = nullptr;
+    indexScan->value = nullptr;
+    indexScan->pnNext = 0;
+    indexScan->ridIx = 0;
+    return SUCCESS;
+}
+
+RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid) {
+    auto keyLength = indexScan->pIXIndexHandle->fileHeader->keyLength;
+    auto attrLength = indexScan->pIXIndexHandle->fileHeader->attrLength;
+    auto attrType = indexScan->pIXIndexHandle->fileHeader->attrType;
+    char realKey[keyLength];
+    memcpy(realKey, indexScan->value, sizeof(attrLength));
+    memset(realKey + attrLength, 0, sizeof(RID));
+
+    if (indexScan->pnNext == -1) {
+        findStartKey(indexScan, realKey);
+        indexScan->ridIx++;
+    }
+
+    if (indexScan->pnNext == 0) {
+        return INDEX_NOT_EXIST; // has checked the last page
+    }
+
+    auto aimNodePage = new PF_PageHandle;
+    auto aimNode = getIxNode(indexScan->pIXIndexHandle, indexScan->pnNext, aimNodePage);
+
+    if (indexScan->compOp == GreatT) {
+        if (indexScan->ridIx >= aimNode->keynum) {
+            indexScan->ridIx = 0;
+            indexScan->pnNext = aimNode->brother;
+            aimNode = getIxNode(indexScan->pIXIndexHandle, indexScan->pnNext, aimNodePage);
+        }
+    }
+
+    char *src_data;
+    GetData(aimNodePage, &src_data);
+    char *aimNodeKeyList = src_data + aimNode->keys_offset;
+    char *aimNodeRidList = src_data + aimNode->rids_offset;
+    char *curKey = aimNodeKeyList + sizeof(char) * indexScan->ridIx * keyLength;
+    RID tmp;
+    memcpy(&tmp, aimNodeRidList + sizeof(RID) * indexScan->ridIx, sizeof(RID));
+
+    if (!checkConditions(indexScan, curKey)) {
+        return INDEX_NOT_EXIST;
+    }
+
+    rid->bValid = true;
+    rid->pageNum = tmp.pageNum;
+    rid->slotNum = tmp.slotNum;
+
+    if (indexScan->ridIx + 1 >= aimNode->keynum) {
+        indexScan->ridIx = 0;
+        indexScan->pnNext = aimNode->brother;
+    } else {
+        indexScan->ridIx++;
+    }
+    return INDEX_EXIST;
 }
 
 void generateTreeNode (IX_IndexHandle * indexHandle, PageNum pageNum, Tree_Node * aim_node) {

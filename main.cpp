@@ -41,28 +41,42 @@ int main() {
     CreateIndex("../test.ix", ints, sizeof(int));
     OpenIndex("../test.ix", ix_indexHandle);
 
-    RID rid;
-    rid.bValid = true;
-    rid.slotNum = 1;
-    int testData = rid.pageNum = 5;
+//    RID rid;
+//    rid.bValid = true;
+//    rid.slotNum = 1;
+//    int testData = rid.pageNum = 5;
+//
+//    for (int i = 0; i <= 50; i++) {
+//        testData = rid.pageNum = i;
+//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
+//
+//    for (int i = 0; i < 30; i++) {
+//        testData = rid.pageNum = i;
+//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
+//
+//    for (int i = 0; i < 10; i++) {
+//        testData = rid.pageNum = i;
+//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
+//
+//    for (int i = 0; i < 5; i++) {
+//        testData = rid.pageNum = i;
+//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
 
-    for (int i = 0; i <= 50; i++) {
-        testData = rid.pageNum = i;
-        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+    int tmp = -1;
+    auto indexScan = new IX_IndexScan;
+    OpenIndexScan(indexScan, ix_indexHandle, GreatT, (char *) &tmp);
+    while (true) {
+        RID tmpRid;
+        int isExist = IX_GetNextEntry(indexScan, &tmpRid);
+        if (isExist == INDEX_NOT_EXIST) {
+            break;
+        }
+        printf("rid: %d %d\n", tmpRid.pageNum, tmpRid.slotNum);
     }
-
-    for (int i = 0; i < 30; i++) {
-        testData = rid.pageNum = i;
-        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-    }
-
-    for (int i = 0; i < 6; i++) {
-        testData = rid.pageNum = i;
-        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    }
-
-    testData = rid.pageNum = 6;
-    InsertEntry(ix_indexHandle, (char *) &testData, &rid);
 
 
     traverseAll(ix_indexHandle);
