@@ -2,6 +2,7 @@
 #include "RM_Manager.h"
 #include "IX_Manager.h"
 #include "Bit_tools.h"
+#include "SYS_Manager.h"
 
 int main() {
 //    auto rm_fileHandle = new RM_FileHandle;
@@ -37,54 +38,41 @@ int main() {
 //
 //    RM_CloseFile(rm_fileHandle);
 
-    auto ix_indexHandle = new IX_IndexHandle;
-    CreateIndex("../test.ix", ints, sizeof(int));
-    OpenIndex("../test.ix", ix_indexHandle);
-
+//    auto ix_indexHandle = new IX_IndexHandle;
+//    CreateIndex("../test.ix", ints, sizeof(int));
+//    OpenIndex("../test.ix", ix_indexHandle);
+//
 //    RID rid;
 //    rid.bValid = true;
 //    rid.slotNum = 1;
 //    int testData = rid.pageNum = 5;
 //
-//    for (int i = 0; i <= 50; i++) {
-//        testData = rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
+////    for (int i = 0; i < 30; i++) {
+////        testData = rid.pageNum = i;
+////        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+////    }
+////    for (int i = 100; i < 300; i++) {
+////        testData = rid.pageNum = i;
+////        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+////    }
 //
-//    for (int i = 0; i < 30; i++) {
-//        testData = rid.pageNum = i;
-//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
+//    int tmp = 42;
+//    auto indexScan = new IX_IndexScan;
+//    OpenIndexScan(indexScan, ix_indexHandle, NO_OP, (char *) &tmp);
+//    while (true) {
+//        RID tmpRid;
+//        int isExist = IX_GetNextEntry(indexScan, &tmpRid);
+//        if (isExist == INDEX_NOT_EXIST) {
+//            break;
+//        }
+//        printf("rid: %d %d\n", tmpRid.pageNum, tmpRid.slotNum);
 //    }
+//    traverseAll(ix_indexHandle);
+//    CloseIndex(ix_indexHandle);
 //
-//    for (int i = 0; i < 10; i++) {
-//        testData = rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
-//
-//    for (int i = 0; i < 5; i++) {
-//        testData = rid.pageNum = i;
-//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-//    }
+//    auto tree = new Tree;
+//    GetIndexTree((char *) "../test.ix", tree);
 
-    int tmp = 42;
-    auto indexScan = new IX_IndexScan;
-    OpenIndexScan(indexScan, ix_indexHandle, EQual, (char *) &tmp);
-    while (true) {
-        RID tmpRid;
-        int isExist = IX_GetNextEntry(indexScan, &tmpRid);
-        if (isExist == INDEX_NOT_EXIST) {
-            break;
-        }
-        printf("rid: %d %d\n", tmpRid.pageNum, tmpRid.slotNum);
-    }
-
-
-    traverseAll(ix_indexHandle);
-    CloseIndex(ix_indexHandle);
-
-
-
-    auto tree = new Tree;
-    GetIndexTree((char *) "../test.ix", tree);
-    printf("123");
+    CreateDB((char *)"..", (char *)"test");
+    DropDB((char *) "../test");
 }

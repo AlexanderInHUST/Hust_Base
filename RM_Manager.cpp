@@ -8,7 +8,6 @@ bool checkConditions(RM_FileScan *rm_fileScan, RM_Record *record) {
     auto conditions = rm_fileScan->conditions;
     auto conNum = rm_fileScan->conNum;
     bool result = true;
-
     for (int i = 0; i < conNum; i++) {
         auto currentCon = conditions[i];
         char * leftValue, * rightValue;
