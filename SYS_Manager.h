@@ -27,6 +27,10 @@ extern char * sys_col_data;
 #define IX_FLAG_SIZE    1
 #define INDEXNAME_SIZE  21
 
+#define IX_FLAG_OFFSET  ((size_t) (21 + 21 + 4 + 4 + 4))
+
+#define MAX_FILE_SIZE   65535
+
 #define TABLE_ROW_SIZE  ((size_t) (21 + 4))
 #define COL_ROW_SIZE    ((size_t) (21 + 21 + 4 + 4 + 4 + 1 + 21))
 

@@ -45,20 +45,22 @@ int main() {
 //    RID rid;
 //    rid.bValid = true;
 //    rid.slotNum = 1;
-//    int testData = rid.pageNum = 5;
+//    int testData = 42;
 //
-////    for (int i = 0; i < 30; i++) {
-////        testData = rid.pageNum = i;
-////        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-////    }
-////    for (int i = 100; i < 300; i++) {
-////        testData = rid.pageNum = i;
-////        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-////    }
+//    for (int i = 20; i < 40; i++) {
+//        rid.pageNum = i;
+//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
 //
-//    int tmp = 42;
+//    testData = 43;
+//    for (int i = 40; i < 50; i++) {
+//        rid.pageNum = i;
+//        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
+//
+//    int tmp = 43;
 //    auto indexScan = new IX_IndexScan;
-//    OpenIndexScan(indexScan, ix_indexHandle, NO_OP, (char *) &tmp);
+//    OpenIndexScan(indexScan, ix_indexHandle, GEqual, (char *) &tmp);
 //    while (true) {
 //        RID tmpRid;
 //        int isExist = IX_GetNextEntry(indexScan, &tmpRid);
@@ -74,5 +76,38 @@ int main() {
 //    GetIndexTree((char *) "../test.ix", tree);
 
     CreateDB((char *)"..", (char *)"test");
-    DropDB((char *) "../test");
+    OpenDB((char *) "../test");
+
+    auto attributes = new AttrInfo[5];
+    for (int i = 0; i < 5; i++) {
+        auto cur_attr = &attributes[i];
+        cur_attr->attrType = ints;
+        cur_attr->attrLength = 4;
+        cur_attr->attrName = new char[21];
+        char tmp[10];
+        sprintf(tmp, "%d", i);
+        strcpy(cur_attr->attrName, (char *) "hello");
+        strcat(cur_attr->attrName, tmp);
+    }
+//    CreateTable((char *) "hello", 5, attributes);
+
+    attributes = new AttrInfo[6];
+    for (int i = 0; i < 6; i++) {
+        auto cur_attr = &attributes[i];
+        cur_attr->attrType = chars;
+        cur_attr->attrLength = 98;
+        cur_attr->attrName = new char[21];
+        char tmp[10];
+        sprintf(tmp, "%d", i);
+        strcpy(cur_attr->attrName, (char *) "bye");
+        strcat(cur_attr->attrName, tmp);
+    }
+//    CreateTable((char *) "bye", 6, attributes);
+
+//    CreateIndex("hello_world", "hello", "hello1");
+    DropIndex("hello_world");
+//    DropTable((char *) "hello");
+//    DropTable((char *) "bye");
+    CloseDB();
+//    DropDB((char *) "../test");
 }
