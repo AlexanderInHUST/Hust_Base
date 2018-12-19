@@ -11,6 +11,7 @@ int sys_table_row_num = 0;
 int sys_col_row_num = 0;
 char * sys_table_data = nullptr;
 char * sys_col_data = nullptr;
+RID cur_rid;
 
 RC CreateDB(char *dbpath, char *dbname) {
     char sys_table_name[255];
@@ -144,7 +145,7 @@ RC CreateTable(char *relName, int attrCount, AttrInfo *attributes) {
     strcpy(full_tab_name, sys_dbname);
     strcat(full_tab_name, ".tb.");
     strcat(full_tab_name, relName);
-    RM_CreateFile(full_tab_name, attrOffset);
+    RM_CreateFile(full_tab_name, attrOffset + sizeof(RID) + sizeof(bool)); // which is datasize + rid.size
     return SUCCESS;
 }
 
@@ -254,8 +255,89 @@ RC DropIndex(char *indexName) {
 }
 
 RC Insert(char *relName, int nValues, Value *values) {
+    bool isFound = false;
+    int attr_len[nValues];
 
-    return PF_NOBUF;
+    for (int i = 0; i < sys_table_row_num; i++) {
+        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            isFound = true;
+            break;
+        }
+    }
+    if (!isFound) {
+        return TABLE_NOT_EXIST;
+    }
+
+    for (int i = 0; i < sys_col_row_num; i++) {
+        char * curRow = sys_col_data + COL_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            for (int j = i; j < nValues; j++) {
+                int cur_len = 0;
+                AttrType cur_type;
+                curRow = sys_col_data + COL_ROW_SIZE * j;
+                memcpy(&cur_type, curRow + TABLENAME_SIZE + ATTRNAME_SIZE, sizeof(int));
+                if (cur_type != values[j - i].type) { // to check whether the data is
+                    return RECORD_NOT_EXIST;
+                }
+                memcpy(&cur_len, curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
+                attr_len[j - i] = cur_len;
+            }
+            break;
+        }
+    }
+
+    char full_table_name[255];
+    strcpy(full_table_name, sys_dbname);
+    strcat(full_table_name, ".tb.");
+    strcat(full_table_name, relName);
+
+    char insert_value[MAX_FILE_SIZE];
+    int attr_offset = 0;
+    for (int i = 0; i < nValues; i++) {
+        char * curData = (char *) values[i].data;
+        memcpy(insert_value + attr_offset, curData, (size_t) attr_len[i]);
+        attr_offset += attr_len[i];
+    }
+
+    auto rm_handle = new RM_FileHandle;
+    RM_OpenFile(full_table_name, rm_handle);
+    auto insert_result = InsertRec(rm_handle, insert_value, &cur_rid);
+    RM_CloseFile(rm_handle);
+    delete rm_handle;
+    if (insert_result != SUCCESS) {
+        return insert_result;
+    }
+
+    for (int i = 0; i < sys_col_row_num; i++) {
+        char * curRow = sys_col_data + COL_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            for (int j = i; j < nValues; j++) {
+                curRow = sys_col_data + COL_ROW_SIZE * j;
+                char is_inx = 0;
+                memcpy(&is_inx, curRow + IX_FLAG_OFFSET, 1);
+                if (is_inx == 1) {
+                    char ix_name[21];
+                    strcpy(ix_name, curRow + IX_FLAG_OFFSET + 1);
+
+                    char full_index_name[255];
+                    strcpy(full_index_name, sys_dbname);
+                    strcat(full_index_name, ".ix.");
+                    strcat(full_index_name, relName);
+                    strcat(full_index_name, ".");
+                    strcat(full_index_name, ix_name);
+
+                    auto ix_handle = new IX_IndexHandle;
+                    OpenIndex(full_index_name, ix_handle);
+                    InsertEntry(ix_handle, (char *) values[j - i].data, &cur_rid);
+                    CloseIndex(ix_handle);
+                    delete ix_handle;
+                }
+            }
+            break;
+        }
+    }
+    return SUCCESS;
 }
 
 RC Delete(char *relName, int nConditions, Condition *conditions) {

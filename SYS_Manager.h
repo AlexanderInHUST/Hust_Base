@@ -17,6 +17,7 @@ extern int sys_table_row_num;
 extern int sys_col_row_num;
 extern char * sys_table_data;
 extern char * sys_col_data;
+extern RID cur_rid;
 
 #define TABLENAME_SIZE  21
 #define ATTRCOUNT_SIZE  4

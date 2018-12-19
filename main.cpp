@@ -95,7 +95,7 @@ int main() {
     for (int i = 0; i < 6; i++) {
         auto cur_attr = &attributes[i];
         cur_attr->attrType = chars;
-        cur_attr->attrLength = 98;
+        cur_attr->attrLength = 4;
         cur_attr->attrName = new char[21];
         char tmp[10];
         sprintf(tmp, "%d", i);
@@ -104,8 +104,17 @@ int main() {
     }
 //    CreateTable((char *) "bye", 6, attributes);
 
+    Value test_values[5];
+    for (int i = 0; i < 5; i++) {
+        test_values[i].type = ints;
+        test_values[i].data = new char[4];
+        memcpy(test_values[i].data, &i, sizeof(int));
+    }
+    Insert("hello", 5, test_values);
+
+
 //    CreateIndex("hello_world", "hello", "hello1");
-    DropIndex("hello_world");
+//    DropIndex("hello_world");
 //    DropTable((char *) "hello");
 //    DropTable((char *) "bye");
     CloseDB();
