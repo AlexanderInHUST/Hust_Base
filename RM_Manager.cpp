@@ -263,6 +263,10 @@ RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
     int recordSize = rm_fileHandle->rm_fileSubHeader->recordSize;
     int dataSize = recordSize - sizeof(bool) - sizeof(RID);
 
+    if (rm_fileHandle->rm_fileSubHeader->nRecords == 0) {
+        return RM_EOF;
+    }
+
     RID lastRid;
     lastRid.bValid = true;
     lastRid.pageNum = rmFileScan->pn;
@@ -376,9 +380,6 @@ RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
         char innerMask = (char) 1 << (rid->slotNum % 8u);
         *theVeryMap &= ~innerMask;
         memcpy(src_data, &recordsNum, sizeof(int));
-
-        MarkDirty(pf_pageHandle);
-        UnpinPage(pf_pageHandle);
         // erase mark in page header bitmap
     } else {
         DisposePage(fileHandle->pf_fileHandle, rid->pageNum);
@@ -401,6 +402,8 @@ RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
 
     MarkDirty(rm_headerPage);
     UnpinPage(rm_headerPage);
+    MarkDirty(pf_pageHandle);
+    UnpinPage(pf_pageHandle);
 
     delete pf_pageHandle;
     delete rm_headerPage;
@@ -432,8 +435,11 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     int bitmapSize = (int) ceil((double) maxRecordsPerPage / 8.0);
 
     if (needNewPage) {
+        char *tmp;
         AllocatePage(fileHandle->pf_fileHandle, pf_pageHandle);
         GetPageNum(pf_pageHandle, &newRecordPagePos);
+        GetData(pf_pageHandle, &tmp);
+        memset(tmp, 0, PF_PAGESIZE);
     } else {
         GetThisPage(fileHandle->pf_fileHandle, newRecordPagePos, pf_pageHandle);
     } // get the dst page num

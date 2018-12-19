@@ -3,6 +3,7 @@
 //
 
 #include "SYS_Manager.h"
+#include "Condition_tool.h"
 
 char sys_dbname[255];
 int sys_table_fd = -1;
@@ -257,7 +258,6 @@ RC DropIndex(char *indexName) {
 RC Insert(char *relName, int nValues, Value *values) {
     bool isFound = false;
     int attr_len[nValues];
-
     for (int i = 0; i < sys_table_row_num; i++) {
         char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
         if (strcmp(curRow, relName) == 0) {
@@ -341,7 +341,72 @@ RC Insert(char *relName, int nValues, Value *values) {
 }
 
 RC Delete(char *relName, int nConditions, Condition *conditions) {
-    return PF_NOBUF;
+    bool isFound = false;
+    int col_num = 0;
+    for (int i = 0; i < sys_table_row_num; i++) {
+        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            memcpy(&col_num, curRow + TABLENAME_SIZE, sizeof(int));
+            isFound = true;
+            break;
+        }
+    }
+    if (!isFound) {
+        return TABLE_NOT_EXIST;
+    }
+
+    char col_name[col_num][255];
+    int col_length[col_num];
+    int col_offset[col_num];
+    AttrType col_types[col_num];
+
+    for (int i = 0; i < sys_col_row_num; i++) {
+        char * curRow = sys_col_data + COL_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            for (int j = i; j < col_num; j++) {
+                curRow = sys_col_data + COL_ROW_SIZE * j;
+                int cur_pos = j - i;
+                strcpy(col_name[cur_pos], curRow + TABLENAME_SIZE);
+                memcpy(&col_types[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE, sizeof(int));
+                memcpy(&col_length[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
+                memcpy(&col_offset[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE + ATTRLENGTH_SIZE,
+                       sizeof(int));
+            }
+            break;
+        }
+    }
+
+    auto cons = convert_conditions(nConditions, conditions, col_num, col_name, col_length, col_offset, col_types);
+
+    char full_table_name[255];
+    strcpy(full_table_name, sys_dbname);
+    strcat(full_table_name, ".tb.");
+    strcat(full_table_name, relName);
+
+    auto rm_fileHandle = new RM_FileHandle;
+    auto rm_fileScan = new RM_FileScan;
+    RM_OpenFile(full_table_name, rm_fileHandle);
+    OpenScan(rm_fileScan, rm_fileHandle, nConditions, cons);
+    RID removed_rid[rm_fileHandle->rm_fileSubHeader->nRecords];
+    int removed_num = 0;
+
+    while (true) {
+        RM_Record record;
+        RC result = GetNextRec(rm_fileScan, &record);
+        if (result != SUCCESS)  {
+            break;
+        }
+        removed_rid[removed_num] = record.rid;
+        removed_num++;
+    }
+
+    for (int i = 0; i < removed_num; i++) {
+        DeleteRec(rm_fileHandle, &removed_rid[i]);
+    }
+
+    CloseScan(rm_fileScan);
+    RM_CloseFile(rm_fileHandle);
+    return SUCCESS;
 }
 
 RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions) {

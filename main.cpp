@@ -110,7 +110,13 @@ int main() {
         test_values[i].data = new char[4];
         memcpy(test_values[i].data, &i, sizeof(int));
     }
-    Insert("hello", 5, test_values);
+
+    for (int i = 0; i < 10; i++) {
+        Insert("hello", 5, test_values);
+    }
+
+
+    Delete("hello", 0, nullptr);
 
 
 //    CreateIndex("hello_world", "hello", "hello1");
