@@ -104,7 +104,7 @@ int main() {
     }
     CreateTable((char *) "bye", 6, attributes);
 
-    CreateIndex("hello_world", "hello", "hello1");
+    CreateIndex("hello_world", "hello", "hello0");
     CreateIndex("hello_world1", "hello", "hello2");
 
     Value test_values[5];
@@ -131,15 +131,15 @@ int main() {
     cons->rhsValue.type = ints;
     cons->rhsValue.data = tmp_char;
 
-    int tmp_up = 1;
+    int tmp_up = 5;
     char tmp_up_char[4];
     memcpy(tmp_up_char, &tmp_up, sizeof(int));
     Value tmp_value;
     tmp_value.type = ints;
     tmp_value.data = tmp_up_char;
-    Update("hello", "hello0", &tmp_value, 1, cons);
+//    Update("hello", "hello0", &tmp_value, 1, cons);
 
-    Delete("hello", 1, cons);
+//    Delete("hello", 1, cons);
 
 
 //    DropIndex("hello_world");

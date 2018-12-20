@@ -500,6 +500,23 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
         for (int i = 0; i < col_num; i++) {
             if (strcmp(col_name[i], attrName) == 0) {
                 memcpy(updated_data + col_offset[i], value->data, (size_t) col_length[i]);
+
+                if (col_is_indx[i] == 1) {
+                    char full_index_name[255];
+                    strcpy(full_index_name, sys_dbname);
+                    strcat(full_index_name, ".ix.");
+                    strcat(full_index_name, relName);
+                    strcat(full_index_name, ".");
+                    strcat(full_index_name, col_indx_name[i]);
+
+                    auto cur_offset = col_offset[i];
+
+                    auto index_handle = new IX_IndexHandle;
+                    OpenIndex(full_index_name, index_handle);
+                    DeleteEntry(index_handle, record.pData + cur_offset, &record.rid);
+                    InsertEntry(index_handle, (char *) value->data, &record.rid);
+                    CloseIndex(index_handle);
+                }
                 break;
             }
         }
