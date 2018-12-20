@@ -89,7 +89,7 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "hello");
         strcat(cur_attr->attrName, tmp);
     }
-//    CreateTable((char *) "hello", 5, attributes);
+    CreateTable((char *) "hello", 5, attributes);
 
     attributes = new AttrInfo[6];
     for (int i = 0; i < 6; i++) {
@@ -102,7 +102,10 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "bye");
         strcat(cur_attr->attrName, tmp);
     }
-//    CreateTable((char *) "bye", 6, attributes);
+    CreateTable((char *) "bye", 6, attributes);
+
+    CreateIndex("hello_world", "hello", "hello1");
+    CreateIndex("hello_world1", "hello", "hello2");
 
     Value test_values[5];
     for (int i = 0; i < 5; i++) {
@@ -111,15 +114,34 @@ int main() {
         memcpy(test_values[i].data, &i, sizeof(int));
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
+        memcpy(test_values[0].data, &i, sizeof(int));
         Insert("hello", 5, test_values);
     }
 
+    int tmp = 2;
+    char tmp_char[4];
+    memcpy(tmp_char, &tmp, sizeof(int));
+    auto cons = new Condition[1];
+    cons->op = GreatT;
+    cons->bLhsIsAttr = 1;
+    cons->bRhsIsAttr = 0;
+    cons->lhsAttr.attrName = new char[21];
+    strcpy(cons->lhsAttr.attrName, "hello0");
+    cons->rhsValue.type = ints;
+    cons->rhsValue.data = tmp_char;
 
-    Delete("hello", 0, nullptr);
+    int tmp_up = 1;
+    char tmp_up_char[4];
+    memcpy(tmp_up_char, &tmp_up, sizeof(int));
+    Value tmp_value;
+    tmp_value.type = ints;
+    tmp_value.data = tmp_up_char;
+    Update("hello", "hello0", &tmp_value, 1, cons);
+
+    Delete("hello", 1, cons);
 
 
-//    CreateIndex("hello_world", "hello", "hello1");
 //    DropIndex("hello_world");
 //    DropTable((char *) "hello");
 //    DropTable((char *) "bye");

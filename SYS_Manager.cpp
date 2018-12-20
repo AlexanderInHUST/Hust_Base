@@ -359,6 +359,8 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
     int col_length[col_num];
     int col_offset[col_num];
     AttrType col_types[col_num];
+    bool col_is_indx[col_num];
+    char col_indx_name[col_num][255];
 
     for (int i = 0; i < sys_col_row_num; i++) {
         char * curRow = sys_col_data + COL_ROW_SIZE * i;
@@ -371,6 +373,10 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
                 memcpy(&col_length[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
                 memcpy(&col_offset[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE + ATTRLENGTH_SIZE,
                        sizeof(int));
+                memcpy(&col_is_indx[cur_pos], curRow + IX_FLAG_OFFSET, 1);
+                if (col_is_indx[cur_pos] == 1) {
+                    strcpy(col_indx_name[cur_pos], curRow + IX_FLAG_OFFSET + 1);
+                }
             }
             break;
         }
@@ -396,19 +402,112 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
         if (result != SUCCESS)  {
             break;
         }
+
+        for (int i = 0; i < col_num; i++) {
+            if (col_is_indx[i] == 1) {
+                char full_index_name[255];
+                strcpy(full_index_name, sys_dbname);
+                strcat(full_index_name, ".ix.");
+                strcat(full_index_name, relName);
+                strcat(full_index_name, ".");
+                strcat(full_index_name, col_indx_name[i]);
+
+                auto cur_offset = col_offset[i];
+
+                auto index_handle = new IX_IndexHandle;
+                OpenIndex(full_index_name, index_handle);
+                DeleteEntry(index_handle, record.pData + cur_offset, &record.rid);
+                CloseIndex(index_handle);
+            }
+        }
         removed_rid[removed_num] = record.rid;
         removed_num++;
     }
-
     for (int i = 0; i < removed_num; i++) {
         DeleteRec(rm_fileHandle, &removed_rid[i]);
     }
-
     CloseScan(rm_fileScan);
     RM_CloseFile(rm_fileHandle);
+
+
     return SUCCESS;
 }
 
 RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions) {
+    bool isFound = false;
+    int col_num = 0;
+    for (int i = 0; i < sys_table_row_num; i++) {
+        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            memcpy(&col_num, curRow + TABLENAME_SIZE, sizeof(int));
+            isFound = true;
+            break;
+        }
+    }
+    if (!isFound) {
+        return TABLE_NOT_EXIST;
+    }
+
+    char col_name[col_num][255];
+    int col_length[col_num];
+    int col_offset[col_num];
+    AttrType col_types[col_num];
+    bool col_is_indx[col_num];
+    char col_indx_name[col_num][255];
+
+    for (int i = 0; i < sys_col_row_num; i++) {
+        char * curRow = sys_col_data + COL_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            for (int j = i; j < col_num; j++) {
+                curRow = sys_col_data + COL_ROW_SIZE * j;
+                int cur_pos = j - i;
+                strcpy(col_name[cur_pos], curRow + TABLENAME_SIZE);
+                memcpy(&col_types[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE, sizeof(int));
+                memcpy(&col_length[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
+                memcpy(&col_offset[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE + ATTRLENGTH_SIZE,
+                       sizeof(int));
+                memcpy(&col_is_indx[cur_pos], curRow + IX_FLAG_OFFSET, 1);
+                if (col_is_indx[cur_pos] == 1) {
+                    strcpy(col_indx_name[cur_pos], curRow + IX_FLAG_OFFSET + 1);
+                }
+            }
+            break;
+        }
+    }
+
+    auto cons = convert_conditions(nConditions, conditions, col_num, col_name, col_length, col_offset, col_types);
+
+    char full_table_name[255];
+    strcpy(full_table_name, sys_dbname);
+    strcat(full_table_name, ".tb.");
+    strcat(full_table_name, relName);
+
+    auto rm_fileHandle = new RM_FileHandle;
+    auto rm_fileScan = new RM_FileScan;
+    RM_OpenFile(full_table_name, rm_fileHandle);
+    OpenScan(rm_fileScan, rm_fileHandle, nConditions, cons);
+
+    while (true) {
+        RM_Record record;
+        RC result = GetNextRec(rm_fileScan, &record);
+        if (result != SUCCESS)  {
+            break;
+        }
+
+        auto data_size = rm_fileHandle->rm_fileSubHeader->recordSize - sizeof(bool) - sizeof(RID);
+        char updated_data[data_size];
+        memcpy(updated_data, record.pData, sizeof(data_size));
+        for (int i = 0; i < col_num; i++) {
+            if (strcmp(col_name[i], attrName) == 0) {
+                memcpy(updated_data + col_offset[i], value->data, (size_t) col_length[i]);
+                break;
+            }
+        }
+        record.pData = updated_data;
+        UpdateRec(rm_fileHandle, &record);
+    }
+    CloseScan(rm_fileScan);
+    RM_CloseFile(rm_fileHandle);
+
     return PF_NOBUF;
 }
