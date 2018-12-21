@@ -76,10 +76,10 @@ int main() {
 //    GetIndexTree((char *) "../test.ix", tree);
 
     CreateDB((char *)"..", (char *)"test");
-    OpenDB((char *) "../test");
+    OpenDB((char *) "test");
 
-    auto attributes = new AttrInfo[5];
-    for (int i = 0; i < 5; i++) {
+    auto attributes = new AttrInfo[500];
+    for (int i = 0; i < 500; i++) {
         auto cur_attr = &attributes[i];
         cur_attr->attrType = ints;
         cur_attr->attrLength = 4;
@@ -89,10 +89,10 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "hello");
         strcat(cur_attr->attrName, tmp);
     }
-    CreateTable((char *) "hello", 5, attributes);
+    CreateTable((char *) "hello", 500, attributes);
 
-    attributes = new AttrInfo[6];
-    for (int i = 0; i < 6; i++) {
+    attributes = new AttrInfo[600];
+    for (int i = 0; i < 600; i++) {
         auto cur_attr = &attributes[i];
         cur_attr->attrType = chars;
         cur_attr->attrLength = 4;
@@ -102,49 +102,63 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "bye");
         strcat(cur_attr->attrName, tmp);
     }
-    CreateTable((char *) "bye", 6, attributes);
+    CreateTable((char *) "bye", 600, attributes);
 
-    CreateIndex("hello_world", "hello", "hello0");
-    CreateIndex("hello_world1", "hello", "hello2");
-
-    Value test_values[5];
-    for (int i = 0; i < 5; i++) {
-        test_values[i].type = ints;
-        test_values[i].data = new char[4];
-        memcpy(test_values[i].data, &i, sizeof(int));
+    attributes = new AttrInfo[600];
+    for (int i = 0; i < 600; i++) {
+        auto cur_attr = &attributes[i];
+        cur_attr->attrType = chars;
+        cur_attr->attrLength = 4;
+        cur_attr->attrName = new char[21];
+        char tmp[10];
+        sprintf(tmp, "%d", i);
+        strcpy(cur_attr->attrName, (char *) "nice");
+        strcat(cur_attr->attrName, tmp);
     }
-
-    for (int i = 0; i < 5; i++) {
-        memcpy(test_values[0].data, &i, sizeof(int));
-        Insert("hello", 5, test_values);
-    }
-
-    int tmp = 2;
-    char tmp_char[4];
-    memcpy(tmp_char, &tmp, sizeof(int));
-    auto cons = new Condition[1];
-    cons->op = GreatT;
-    cons->bLhsIsAttr = 1;
-    cons->bRhsIsAttr = 0;
-    cons->lhsAttr.attrName = new char[21];
-    strcpy(cons->lhsAttr.attrName, "hello0");
-    cons->rhsValue.type = ints;
-    cons->rhsValue.data = tmp_char;
-
-    int tmp_up = 5;
-    char tmp_up_char[4];
-    memcpy(tmp_up_char, &tmp_up, sizeof(int));
-    Value tmp_value;
-    tmp_value.type = ints;
-    tmp_value.data = tmp_up_char;
-//    Update("hello", "hello0", &tmp_value, 1, cons);
-
-//    Delete("hello", 1, cons);
-
-
-//    DropIndex("hello_world");
-//    DropTable((char *) "hello");
-//    DropTable((char *) "bye");
+    CreateTable((char *) "nice", 600, attributes);
+//
+//    CreateIndex("hello_world", "hello", "hello0");
+//    CreateIndex("hello_world1", "hello", "hello2");
+//
+//    Value test_values[5];
+//    for (int i = 0; i < 5; i++) {
+//        test_values[i].type = ints;
+//        test_values[i].data = new char[4];
+//        memcpy(test_values[i].data, &i, sizeof(int));
+//    }
+//
+//    for (int i = 0; i < 5; i++) {
+//        memcpy(test_values[0].data, &i, sizeof(int));
+//        Insert("hello", 5, test_values);
+//    }
+//
+//    int tmp = 2;
+//    char tmp_char[4];
+//    memcpy(tmp_char, &tmp, sizeof(int));
+//    auto cons = new Condition[1];
+//    cons->op = GreatT;
+//    cons->bLhsIsAttr = 1;
+//    cons->bRhsIsAttr = 0;
+//    cons->lhsAttr.attrName = new char[21];
+//    strcpy(cons->lhsAttr.attrName, "hello0");
+//    cons->rhsValue.type = ints;
+//    cons->rhsValue.data = tmp_char;
+//
+//    int tmp_up = 5;
+//    char tmp_up_char[4];
+//    memcpy(tmp_up_char, &tmp_up, sizeof(int));
+//    Value tmp_value;
+//    tmp_value.type = ints;
+//    tmp_value.data = tmp_up_char;
+////    Update("hello", "hello0", &tmp_value, 1, cons);
+//
+////    Delete("hello", 1, cons);
+//
+//
+////    DropIndex("hello_world");
+    DropTable((char *) "bye");
+    DropTable((char *) "nice");
+    DropTable((char *) "hello");
     CloseDB();
 //    DropDB((char *) "../test");
 }

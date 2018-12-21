@@ -10,14 +10,14 @@
 #include "RM_Manager.h"
 #include "str.h"
 
+extern char sys_dbpath[255];
 extern char sys_dbname[255];
-extern int sys_table_fd;
-extern int sys_col_fd;
-extern int sys_table_row_num;
-extern int sys_col_row_num;
-extern char * sys_table_data;
-extern char * sys_col_data;
+//extern int sys_table_row_num;
+//extern int sys_col_row_num;
+//extern char * sys_table_data;
+//extern char * sys_col_data;
 extern RID cur_rid;
+extern RM_FileHandle * table_file_handle, * col_file_handle;
 
 #define TABLENAME_SIZE  21
 #define ATTRCOUNT_SIZE  4

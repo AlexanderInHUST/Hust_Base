@@ -293,11 +293,37 @@ RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
 }
 
 RC OpenScan(RM_FileScan *rmFileScan, RM_FileHandle *fileHandle, int conNum, Con *conditions) {
+    if (fileHandle->rm_fileSubHeader->nRecords == 0) {
+        return RM_EOF;
+    }
+
     rmFileScan->bOpen = true;
     rmFileScan->pRMFileHandle = fileHandle;
     rmFileScan->conNum = conNum;
     rmFileScan->conditions = conditions;
-    rmFileScan->pn = 2;
+
+    char *allocatedBitmap = fileHandle->pf_fileHandle->pBitmap;
+    int curPos = 0;
+    PageNum firstRecordPagePos = 0;
+    while (true) {
+        if (curPos != 0) {
+            int bitmapCount = count_bit_set((unsigned char) allocatedBitmap[curPos]);
+            if (bitmapCount != 0) {
+                firstRecordPagePos = curPos * 8u + least_significant_bit_pos((unsigned char) allocatedBitmap[curPos]);
+                break;
+            }
+        } else {
+            char first_byte = (unsigned char) 0xfc & allocatedBitmap[0];
+            int bitmapCount = count_bit_set((unsigned char) first_byte);
+            if (bitmapCount != 0) {
+                firstRecordPagePos = (PageNum) least_significant_bit_pos((unsigned char) first_byte);
+                break;
+            }
+        }
+        curPos++;
+    } // check whether need new page
+
+    rmFileScan->pn = firstRecordPagePos;
     rmFileScan->sn = -1;
     return SUCCESS;
 }
@@ -371,7 +397,7 @@ RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
 
     int recordsNum = -1;
     memcpy(&recordsNum, src_data, sizeof(int));
-    recordsNum--;
+    recordsNum--; // record num for this page
     bool shouldDeleteFull = recordsNum == fileHandle->rm_fileSubHeader->recordsPerPage - 1;
     bool shouldDelete = recordsNum == 0;
 
@@ -386,16 +412,12 @@ RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
         // dispose that page
     }
 
-    char * head_data;
     auto rm_headerPage = new PF_PageHandle;
     GetThisPage(fileHandle->pf_fileHandle, 1, rm_headerPage);
-    GetData(rm_headerPage, &head_data);
-    memcpy(&recordsNum, head_data, sizeof(int));
-    recordsNum--;
-    memcpy(head_data, &recordsNum, sizeof(int));
+    fileHandle->rm_fileSubHeader->nRecords--;
 
     if (shouldDeleteFull) {
-        char * theVeryMap = head_data + sizeof(RM_FileSubHeader) + (rid->pageNum / 8) * sizeof(char);
+        char * theVeryMap = fileHandle->header_bitmap + (rid->pageNum / 8) * sizeof(char);
         char innerMask = (char) 1 << (rid->pageNum % 8u);
         *theVeryMap &= ~innerMask;
     } // erase mark in full bitmap
@@ -448,8 +470,7 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     GetData(pf_pageHandle, &dst_data);
     SlotNum newRecordPos = -1;
     int recordsNum = (int) dst_data[0];
-    auto recordsMap = new char[bitmapSize]{0};
-    memcpy(recordsMap, dst_data + sizeof(int), sizeof(char) * bitmapSize);
+    auto recordsMap = dst_data + sizeof(int);
 
     for (int i = 0; i < bitmapSize; i++) {
         if (recordsMap[i] != (char) 0xff) {
@@ -478,7 +499,7 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     // store new data on the page
 
     memcpy(dst_data, &recordsNum, sizeof(int));
-    memcpy(dst_data + sizeof(int), recordsMap, sizeof(char) * bitmapSize);
+//    memcpy(dst_data + sizeof(int), recordsMap, sizeof(char) * bitmapSize);
     // store page header info
 
     MarkDirty(pf_pageHandle);
@@ -495,22 +516,21 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     fileHandle->rm_fileSubHeader->nRecords++;
     // update global info
 
-    char * head_data;
+//    char * head_data;
     auto rm_header_page = new PF_PageHandle;
     GetThisPage(fileHandle->pf_fileHandle, 1, rm_header_page);
-    GetData(rm_header_page, &head_data);
-
-    memcpy(head_data, fileHandle->rm_fileSubHeader, sizeof(RM_FileSubHeader));
-    if (fullMapPos != -1) {
-        memcpy(head_data + sizeof(RM_FileSubHeader) + sizeof(char) * fullMapPos, &fileHandle->header_bitmap[fullMapPos], sizeof(char));
-    } // if full has been updated
+//    GetData(rm_header_page, &head_data);
+//
+//    memcpy(head_data, fileHandle->rm_fileSubHeader, sizeof(RM_FileSubHeader));
+//    if (fullMapPos != -1) {
+//        memcpy(head_data + sizeof(RM_FileSubHeader) + sizeof(char) * fullMapPos, &fileHandle->header_bitmap[fullMapPos], sizeof(char));
+//    } // if full has been updated
 
     MarkDirty(rm_header_page);
     UnpinPage(rm_header_page);
 
     delete pf_pageHandle;
     delete rm_header_page;
-    delete[] recordsMap;
     return SUCCESS;
 }
 
@@ -544,7 +564,6 @@ RC RM_CloseFile(RM_FileHandle *fileHandle) {
     CloseFile(fileHandle->pf_fileHandle);
     fileHandle->bOpen = false;
     delete fileHandle->pf_fileHandle;
-    delete fileHandle->rm_fileSubHeader;
     return SUCCESS;
 }
 
@@ -555,15 +574,13 @@ RC RM_OpenFile(char *fileName, RM_FileHandle *fileHandle) {
         return PF_FILEERR;
     }
 
-    auto rm_fileSubHeader = new RM_FileSubHeader;
     auto pf_pageHandle = new PF_PageHandle;
     GetThisPage(pf_fileHandle, 1, pf_pageHandle);
     char *src_data;
     GetData(pf_pageHandle, &src_data);
-    memcpy(rm_fileSubHeader, src_data, sizeof(RM_FileSubHeader));
 
     fileHandle->bOpen = true;
-    fileHandle->rm_fileSubHeader = rm_fileSubHeader;
+    fileHandle->rm_fileSubHeader = (RM_FileSubHeader *)src_data;
     fileHandle->pf_fileHandle = pf_fileHandle;
     fileHandle->header_bitmap = src_data + sizeof(RM_FileSubHeader);
 
