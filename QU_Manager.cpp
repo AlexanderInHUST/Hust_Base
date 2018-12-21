@@ -28,6 +28,7 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
     auto results_set = new SelResult[nConditions];
     bool has_be_loaded[nRelations];
     bool can_be_reduced[nConditions];
+    bool can_be_deleted[nConditions];
 
     int col_num[nRelations];
     char ** col_name[nRelations];
@@ -58,28 +59,37 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
         GetColsInfo(relations[i], cur_col_num, col_name[i], col_types[i], col_length[i], col_offset[i], col_is_indx[i], col_indx_name[i]);
     }
 
-//    int col_num = 0;
-//    RC table_exist = GetTableInfo(relName, &col_num);
-
-//
-//    char col_name[col_num][255];
-//    int col_length[col_num];
-//    int col_offset[col_num];
-//    AttrType col_types[col_num];
-//    bool col_is_indx[col_num];
-//    char col_indx_name[col_num][255];
-//
-//    GetColsInfo(relName, col_num, col_name, col_types, col_length, col_offset, col_is_indx, col_indx_name);
-
-
     for (int i = 0; i < nConditions; i++) {
         auto cur_con = conditions[i];
         can_be_reduced[i] = !(cur_con.bRhsIsAttr == 1 && cur_con.bLhsIsAttr == 1);
+        can_be_deleted[i] = (cur_con.bRhsIsAttr == 0 && cur_con.bLhsIsAttr == 0);
 
-        if (can_be_reduced[i]) {
+        if (can_be_reduced[i] && !can_be_deleted[i]) {
             Init_Result(&results_set[i]);
+            char * attr_name, * rel_name;
+            AttrType value_type;
+            char * value;
 
+            if (cur_con.bLhsIsAttr == 1) {
+                rel_name = cur_con.lhsAttr.relName;
+                attr_name = cur_con.lhsAttr.attrName;
 
+                value_type = cur_con.rhsValue.type;
+                value = (char *) cur_con.rhsValue.data;
+            } else {
+                rel_name = cur_con.rhsAttr.relName;
+                attr_name = cur_con.rhsAttr.attrName;
+
+                value_type = cur_con.lhsValue.type;
+                value = (char *) cur_con.lhsValue.data;
+            }
+
+            bool is_found = false;
+            for (int j = 0; j < nRelations; j++) {
+//                if (strcmp(attr_name, col_name[i]) == 0) {
+
+//                }
+            }
         }
     }
 
