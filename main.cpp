@@ -139,7 +139,7 @@ int main() {
     tmp_value.data = tmp_up_char;
 //    Update("hello", "hello0", &tmp_value, 1, cons);
 
-//    Delete("hello", 1, cons);
+    Delete("hello", 1, cons);
 
 
 //    DropIndex("hello_world");

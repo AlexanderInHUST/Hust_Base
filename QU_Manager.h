@@ -6,6 +6,8 @@
 #define HUST_BASE_KERNEL_QU_MANAGER_H
 
 #include "str.h"
+#include "Condition_tool.h"
+#include "SYS_Manager.h"
 
 typedef struct SelResult{
     int col_num;

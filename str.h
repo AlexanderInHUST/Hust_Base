@@ -17,6 +17,7 @@
 */
 #include<stdlib.h>
 #include<string.h>
+#include "RC.h"
 
 //属性结构体
 typedef struct {
@@ -143,14 +144,6 @@ typedef struct {
     int flag;    /*match to the sqls 0--error;1--select;2--insert;3--update;4--delete;5--create table;6--drop table;7--create index;8--drop index;9--help;10--exit;*/
     union sqls sstr;
 } sqlstr;
-
-#ifndef HUST_BASE_KERNEL_RC_H
-#define HUST_BASE_KERNEL_RC_H
-typedef enum {
-    SUCCESS,
-    SQL_SYNTAX
-} RC;
-#endif
 
 #ifdef __cplusplus
 extern "C" {

@@ -341,46 +341,25 @@ RC Insert(char *relName, int nValues, Value *values) {
 }
 
 RC Delete(char *relName, int nConditions, Condition *conditions) {
-    bool isFound = false;
     int col_num = 0;
-    for (int i = 0; i < sys_table_row_num; i++) {
-        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
-        if (strcmp(curRow, relName) == 0) {
-            memcpy(&col_num, curRow + TABLENAME_SIZE, sizeof(int));
-            isFound = true;
-            break;
-        }
-    }
-    if (!isFound) {
+    RC table_exist = GetTableInfo(relName, &col_num);
+    if (table_exist == TABLE_NOT_EXIST) {
         return TABLE_NOT_EXIST;
     }
 
-    char col_name[col_num][255];
+    char *col_name[col_num];
     int col_length[col_num];
     int col_offset[col_num];
     AttrType col_types[col_num];
     bool col_is_indx[col_num];
-    char col_indx_name[col_num][255];
+    char *col_indx_name[col_num];
 
-    for (int i = 0; i < sys_col_row_num; i++) {
-        char * curRow = sys_col_data + COL_ROW_SIZE * i;
-        if (strcmp(curRow, relName) == 0) {
-            for (int j = i; j < col_num; j++) {
-                curRow = sys_col_data + COL_ROW_SIZE * j;
-                int cur_pos = j - i;
-                strcpy(col_name[cur_pos], curRow + TABLENAME_SIZE);
-                memcpy(&col_types[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE, sizeof(int));
-                memcpy(&col_length[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
-                memcpy(&col_offset[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE + ATTRLENGTH_SIZE,
-                       sizeof(int));
-                memcpy(&col_is_indx[cur_pos], curRow + IX_FLAG_OFFSET, 1);
-                if (col_is_indx[cur_pos] == 1) {
-                    strcpy(col_indx_name[cur_pos], curRow + IX_FLAG_OFFSET + 1);
-                }
-            }
-            break;
-        }
+    for (int i = 0; i < col_num; i++) {
+        col_name[i] = new char[255];
+        col_indx_name[i] = new char[255];
     }
+
+    GetColsInfo(relName, col_num, col_name, col_types, col_length, col_offset, col_is_indx, col_indx_name);
 
     auto cons = convert_conditions(nConditions, conditions, col_num, col_name, col_length, col_offset, col_types);
 
@@ -429,51 +408,34 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
     CloseScan(rm_fileScan);
     RM_CloseFile(rm_fileHandle);
 
+    for (int i = 0; i < col_num; i++) {
+        delete col_name[i];
+        delete col_indx_name[i];
+    }
 
     return SUCCESS;
 }
 
 RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions) {
-    bool isFound = false;
     int col_num = 0;
-    for (int i = 0; i < sys_table_row_num; i++) {
-        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
-        if (strcmp(curRow, relName) == 0) {
-            memcpy(&col_num, curRow + TABLENAME_SIZE, sizeof(int));
-            isFound = true;
-            break;
-        }
-    }
-    if (!isFound) {
+    RC table_exist = GetTableInfo(relName, &col_num);
+    if (table_exist == TABLE_NOT_EXIST) {
         return TABLE_NOT_EXIST;
     }
 
-    char col_name[col_num][255];
+    char *col_name[col_num];
     int col_length[col_num];
     int col_offset[col_num];
     AttrType col_types[col_num];
     bool col_is_indx[col_num];
-    char col_indx_name[col_num][255];
+    char *col_indx_name[col_num];
 
-    for (int i = 0; i < sys_col_row_num; i++) {
-        char * curRow = sys_col_data + COL_ROW_SIZE * i;
-        if (strcmp(curRow, relName) == 0) {
-            for (int j = i; j < col_num; j++) {
-                curRow = sys_col_data + COL_ROW_SIZE * j;
-                int cur_pos = j - i;
-                strcpy(col_name[cur_pos], curRow + TABLENAME_SIZE);
-                memcpy(&col_types[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE, sizeof(int));
-                memcpy(&col_length[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
-                memcpy(&col_offset[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE + ATTRLENGTH_SIZE,
-                       sizeof(int));
-                memcpy(&col_is_indx[cur_pos], curRow + IX_FLAG_OFFSET, 1);
-                if (col_is_indx[cur_pos] == 1) {
-                    strcpy(col_indx_name[cur_pos], curRow + IX_FLAG_OFFSET + 1);
-                }
-            }
-            break;
-        }
+    for (int i = 0; i < col_num; i++) {
+        col_name[i] = new char[255];
+        col_indx_name[i] = new char[255];
     }
+
+    GetColsInfo(relName, col_num, col_name, col_types, col_length, col_offset, col_is_indx, col_indx_name);
 
     auto cons = convert_conditions(nConditions, conditions, col_num, col_name, col_length, col_offset, col_types);
 
@@ -526,5 +488,51 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
     CloseScan(rm_fileScan);
     RM_CloseFile(rm_fileHandle);
 
+    for (int i = 0; i < col_num; i++) {
+        delete col_name[i];
+        delete col_indx_name[i];
+    }
+
     return PF_NOBUF;
+}
+
+RC GetColsInfo(char *relName, int colNum, char ** attrName, AttrType * attrType, int * attrLength, int * attrOffset,
+               bool * ixFlag, char ** indexName) {
+
+    for (int i = 0; i < sys_col_row_num; i++) {
+        char * curRow = sys_col_data + COL_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            for (int j = i; j < colNum; j++) {
+                curRow = sys_col_data + COL_ROW_SIZE * j;
+                int cur_pos = j - i;
+                strcpy(attrName[cur_pos], curRow + TABLENAME_SIZE);
+                memcpy(&attrType[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE, sizeof(int));
+                memcpy(&attrLength[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE, sizeof(int));
+                memcpy(&attrOffset[cur_pos], curRow + TABLENAME_SIZE + ATTRNAME_SIZE + ATTRTYPE_SIZE + ATTRLENGTH_SIZE,
+                       sizeof(int));
+                memcpy(&ixFlag[cur_pos], curRow + IX_FLAG_OFFSET, 1);
+                if (ixFlag[cur_pos] == 1) {
+                    strcpy(indexName[cur_pos], curRow + IX_FLAG_OFFSET + 1);
+                }
+            }
+            break;
+        }
+    }
+    return SUCCESS;
+}
+
+RC GetTableInfo(char *relName, int *colNum) {
+    bool isFound = false;
+    for (int i = 0; i < sys_table_row_num; i++) {
+        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
+        if (strcmp(curRow, relName) == 0) {
+            memcpy(colNum, curRow + TABLENAME_SIZE, sizeof(int));
+            isFound = true;
+            break;
+        }
+    }
+    if (!isFound) {
+        return TABLE_NOT_EXIST;
+    }
+    return SUCCESS;
 }

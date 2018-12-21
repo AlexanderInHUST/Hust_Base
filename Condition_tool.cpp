@@ -4,7 +4,7 @@
 
 #include "Condition_tool.h"
 
-Con *convert_conditions(int con_num, Condition *cons, int col_num, char col_name[][255], const int *col_length, const int *col_offset, const AttrType *col_types) {
+Con *convert_conditions(int con_num, Condition *cons, int col_num, char ** col_name, const int *col_length, const int *col_offset, const AttrType *col_types) {
     auto converted_cons = new Con[con_num];
     for (int i = 0; i < con_num; i++) {
         auto cur_con = cons[i];
