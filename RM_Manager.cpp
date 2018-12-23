@@ -156,7 +156,6 @@ bool GetNextRID(RM_FileHandle *fileHandle, RID *lastRID, RID *nextRID) {
     GetThisPage(pf_fileHandle, lastRID->pageNum, lastDataPage);
     GetData(lastDataPage, &src_data);
     auto slotBitmap = src_data + sizeof(int);
-    delete lastDataPage;
     // get the slot bitmap in page
 
     char curBitByte = slotBitmap[lastSlotPos];
@@ -166,6 +165,8 @@ bool GetNextRID(RM_FileHandle *fileHandle, RID *lastRID, RID *nextRID) {
             nextRID->bValid = true;
             nextRID->pageNum = lastRID->pageNum;
             nextRID->slotNum = lastSlotPos * 8 + i;
+            UnpinPage(lastDataPage);
+            delete lastDataPage;
             return true;
         }
     } // search current slot byte
@@ -181,10 +182,14 @@ bool GetNextRID(RM_FileHandle *fileHandle, RID *lastRID, RID *nextRID) {
                 nextRID->bValid = true;
                 nextRID->pageNum = lastRID->pageNum;
                 nextRID->slotNum = i * 8 + j;
+                UnpinPage(lastDataPage);
+                delete lastDataPage;
                 return true;
             }
         }
     } // search current page
+    UnpinPage(lastDataPage);
+    delete lastDataPage;
 
     char curAllocateBitByte = allocatedMap[lastPagePos];
     for (int i = lastPageInnerPos + 1; i < 8; i++) {
@@ -209,11 +214,13 @@ bool GetNextRID(RM_FileHandle *fileHandle, RID *lastRID, RID *nextRID) {
                         nextRID->bValid = true;
                         nextRID->pageNum = aimPageNum;
                         nextRID->slotNum = j * 8 + k;
+                        UnpinPage(aimPageHandle);
                         delete aimPageHandle;
                         return true;
                     }
                 }
             }
+            UnpinPage(aimPageHandle);
             delete aimPageHandle;
         }
     } // search current page byte
@@ -242,11 +249,13 @@ bool GetNextRID(RM_FileHandle *fileHandle, RID *lastRID, RID *nextRID) {
                             nextRID->bValid = true;
                             nextRID->pageNum = aimPageNum;
                             nextRID->slotNum = k * 8 + l;
+                            UnpinPage(aimPageHandle);
                             delete aimPageHandle;
                             return true;
                         }
                     }
                 }
+                UnpinPage(aimPageHandle);
                 delete aimPageHandle;
             }
         }
@@ -264,6 +273,7 @@ RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
     int dataSize = recordSize - sizeof(bool) - sizeof(RID);
 
     if (rm_fileHandle->rm_fileSubHeader->nRecords == 0) {
+        DEBUG_LOG("Return Code: %d Table is empty\n", RM_EOF);
         return RM_EOF;
     }
 

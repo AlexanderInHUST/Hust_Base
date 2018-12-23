@@ -78,8 +78,8 @@ int main() {
     CreateDB((char *)"..", (char *)"test");
     OpenDB((char *) "test");
 
-    auto attributes = new AttrInfo[500];
-    for (int i = 0; i < 500; i++) {
+    auto attributes = new AttrInfo[5];
+    for (int i = 0; i < 5; i++) {
         auto cur_attr = &attributes[i];
         cur_attr->attrType = ints;
         cur_attr->attrLength = 4;
@@ -89,10 +89,10 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "hello");
         strcat(cur_attr->attrName, tmp);
     }
-    CreateTable((char *) "hello", 500, attributes);
+    CreateTable((char *) "hello", 5, attributes);
 
-    attributes = new AttrInfo[600];
-    for (int i = 0; i < 600; i++) {
+    attributes = new AttrInfo[6];
+    for (int i = 0; i < 6; i++) {
         auto cur_attr = &attributes[i];
         cur_attr->attrType = chars;
         cur_attr->attrLength = 4;
@@ -102,10 +102,10 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "bye");
         strcat(cur_attr->attrName, tmp);
     }
-    CreateTable((char *) "bye", 600, attributes);
+    CreateTable((char *) "bye", 6, attributes);
 
-    attributes = new AttrInfo[600];
-    for (int i = 0; i < 600; i++) {
+    attributes = new AttrInfo[6];
+    for (int i = 0; i < 6; i++) {
         auto cur_attr = &attributes[i];
         cur_attr->attrType = chars;
         cur_attr->attrLength = 4;
@@ -115,23 +115,40 @@ int main() {
         strcpy(cur_attr->attrName, (char *) "nice");
         strcat(cur_attr->attrName, tmp);
     }
-    CreateTable((char *) "nice", 600, attributes);
-//
-//    CreateIndex("hello_world", "hello", "hello0");
-//    CreateIndex("hello_world1", "hello", "hello2");
-//
-//    Value test_values[5];
-//    for (int i = 0; i < 5; i++) {
-//        test_values[i].type = ints;
-//        test_values[i].data = new char[4];
-//        memcpy(test_values[i].data, &i, sizeof(int));
-//    }
-//
-//    for (int i = 0; i < 5; i++) {
-//        memcpy(test_values[0].data, &i, sizeof(int));
-//        Insert("hello", 5, test_values);
-//    }
-//
+    CreateTable((char *) "nice", 6, attributes);
+
+    CreateIndex("hello_world", "hello", "hello0");
+    CreateIndex("hello_world1", "hello", "hello2");
+    CreateIndex("hello_world2", "bye", "bye1");
+
+    Value test_values[5];
+    for (int i = 0; i < 5; i++) {
+        test_values[i].type = ints;
+        test_values[i].data = new char[4];
+        memcpy(test_values[i].data, &i, sizeof(int));
+    }
+
+    for (int i = 0; i < 500; i++) {
+        memcpy(test_values[0].data, &i, sizeof(int));
+        Insert("hello", 5, test_values);
+    }
+
+    char full_index_name[255];
+    strcpy(full_index_name, sys_dbpath);
+    strcat(full_index_name, "/");
+    strcat(full_index_name, sys_dbname);
+    strcat(full_index_name, ".ix.");
+    strcat(full_index_name, "hello");
+    strcat(full_index_name, ".");
+    strcat(full_index_name, "hello_world1");
+
+    auto index_handle = new IX_IndexHandle;
+    OpenIndex(full_index_name, index_handle);
+    traverseAll(index_handle);
+    CloseIndex(index_handle);
+
+    Delete("hello", 0, nullptr);
+
 //    int tmp = 2;
 //    char tmp_char[4];
 //    memcpy(tmp_char, &tmp, sizeof(int));
@@ -155,7 +172,8 @@ int main() {
 ////    Delete("hello", 1, cons);
 //
 //
-////    DropIndex("hello_world");
+//    DropIndex("hello_world");
+
     DropTable((char *) "bye");
     DropTable((char *) "nice");
     DropTable((char *) "hello");

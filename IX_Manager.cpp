@@ -163,7 +163,7 @@ PageNum findKey(IX_IndexHandle *indexHandle, AttrType attrType, int attrLength, 
 
     while (!currentNode->is_leaf) {
         bool isFound = false;
-        GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
+//        GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
         GetData(currentNodePage, &src_data);
         // Get that data
 
@@ -371,6 +371,7 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, realKey);
     auto aimNodePage = new PF_PageHandle;
     auto aimNode = getIxNode(indexHandle, aimNodePageNum, aimNodePage);
+
     char *src_data;
     GetData(aimNodePage, &src_data);
     // initialize start info
@@ -416,6 +417,10 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         int numAsChild = -1;
 
         parentPageNum = aimNode->parent;
+        if (aimNodePageNum == 70) {
+            printf("??");
+        }
+
         bool shouldCreateNew = parentPageNum == 0;
         if (shouldCreateNew) {
             parentPageNum = createNewNode(indexHandle);
@@ -616,6 +621,19 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     memcpy(realKey + attrLength, rid, sizeof(RID));
     // basic info
 
+//    char tmp;
+//    tmp = pData[0];
+//    if (tmp == 60) {
+//        printf("asd");
+//        auto parentPage = new PF_PageHandle;
+//        auto parentNode = getIxNode(indexHandle, 49, parentPage);
+//        char * parent_src_data;
+//        GetData(parentPage, &parent_src_data);
+//        auto parentKeyList = parent_src_data + parentNode->keys_offset;
+//        auto parentChildren = parent_src_data + parentNode->rids_offset;
+//        printf("???");
+//    }
+
     int deletePos = -1;
     auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, realKey);
     auto aimNodePage = new PF_PageHandle;
@@ -645,6 +663,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     if (isValid) {
         MarkDirty(aimNodePage);
         UnpinPage(aimNodePage);
+        UnpinPage(headerPage);
         delete headerPage;
         delete aimNodePage;
         return SUCCESS;
@@ -850,8 +869,10 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             UnpinPage(rightSiblingPage);
             delete rightSiblingPage;
         }
-
+        MarkDirty(aimNodePage);
+        UnpinPage(aimNodePage);
         delete aimNodePage;
+
         aimNode = parentNode;
         aimNodeKeyList = parentKeyList;
         aimNodeRidList = parentChildren;
@@ -904,7 +925,6 @@ void traverseAll(IX_IndexHandle *indexHandle) {
     char *src_data;
 
     while (!currentNode->is_leaf) {
-        GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
         GetData(currentNodePage, &src_data);
         // Get that data
 
@@ -916,7 +936,6 @@ void traverseAll(IX_IndexHandle *indexHandle) {
     }
 
     while (currentPage != 0) {
-        GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
         GetData(currentNodePage, &src_data);
         // Get that data
 
@@ -932,14 +951,13 @@ void traverseAll(IX_IndexHandle *indexHandle) {
             memcpy(&aftKey, curKey + attrLength, sizeof(RID));
             RID tmpRid;
             memcpy(&tmpRid, curRid, sizeof(RID));
-            printf("Key : %d - %d, %d, Rid : pageNum %d slotNum %d\n", prefixKey, aftKey.pageNum, aftKey.slotNum, tmpRid.pageNum, tmpRid.slotNum);
+            printf("PageNum : %d ParentNum : %d Key : %d - %d, %d, Rid : pageNum %d slotNum %d\n", currentPage, currentNode->parent, prefixKey, aftKey.pageNum, aftKey.slotNum, tmpRid.pageNum, tmpRid.slotNum);
         }
-
+        UnpinPage(currentNodePage);
         currentPage = currentNode->brother;
         currentNode = getIxNode(indexHandle, currentPage, currentNodePage);
     }
 
-    UnpinPage(currentNodePage);
     delete currentNodePage;
 }
 
@@ -1020,6 +1038,7 @@ RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid) {
     } else {
         indexScan->ridIx++;
     }
+    UnpinPage(aimNodePage);
     return INDEX_EXIST;
 }
 

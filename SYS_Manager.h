@@ -62,7 +62,7 @@ RC Delete(char *relName, int nConditions, Condition *conditions);
 
 RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions);
 
-RC GetColsInfo(char *relName, int colNum, char ** attrName, AttrType * attrType, int * attrLength, int * attrOffset,
+RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrLength, int * attrOffset,
                bool * ixFlag, char ** indexName);
 
 RC GetTableInfo(char *relName, int *colNum);
