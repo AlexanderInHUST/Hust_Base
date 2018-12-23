@@ -112,7 +112,10 @@ PageNum createNewNode(IX_IndexHandle *indexHandle) {
 }
 
 IX_Node * getIxNode(IX_IndexHandle *indexHandle, PageNum pageNum, PF_PageHandle * pf_pageHandle) {
-    GetThisPage(indexHandle->fileHandle, pageNum, pf_pageHandle);
+    RC result = GetThisPage(indexHandle->fileHandle, pageNum, pf_pageHandle);
+    if (result != SUCCESS) {
+        printf("??? %d\n", result);
+    }
     char *src_data;
     GetData(pf_pageHandle, &src_data);
     return (IX_Node *) (src_data + sizeof(IX_FileHeader));
@@ -163,7 +166,6 @@ PageNum findKey(IX_IndexHandle *indexHandle, AttrType attrType, int attrLength, 
 
     while (!currentNode->is_leaf) {
         bool isFound = false;
-//        GetThisPage(indexHandle->fileHandle, currentPage, currentNodePage);
         GetData(currentNodePage, &src_data);
         // Get that data
 
@@ -327,6 +329,7 @@ PageNum findOnesLeftSibling(IX_IndexHandle *indexHandle, PageNum aimPageNode, IX
                 break;
             }
         }
+        UnpinPage(parentPage);
         if (numAsChild == 0) {
             aimPageNode = parentPageNum;
             parentPageNum = parentNode->parent;
@@ -347,6 +350,7 @@ PageNum findOnesLeftSibling(IX_IndexHandle *indexHandle, PageNum aimPageNode, IX
             GetData(parentPage, &leftSibling_src_data);
             leftSiblingChildren = leftSibling_src_data + leftSiblingNode->rids_offset;
             memcpy(&leftSiblingPageNum, leftSiblingChildren + leftSiblingNode->keynum * sizeof(PageNum), sizeof(PageNum));
+            UnpinPage(parentPage);
         }
 
         delete parentPage;
@@ -417,9 +421,6 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         int numAsChild = -1;
 
         parentPageNum = aimNode->parent;
-        if (aimNodePageNum == 70) {
-            printf("??");
-        }
 
         bool shouldCreateNew = parentPageNum == 0;
         if (shouldCreateNew) {
@@ -621,18 +622,18 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     memcpy(realKey + attrLength, rid, sizeof(RID));
     // basic info
 
-//    char tmp;
-//    tmp = pData[0];
-//    if (tmp == 60) {
-//        printf("asd");
-//        auto parentPage = new PF_PageHandle;
-//        auto parentNode = getIxNode(indexHandle, 49, parentPage);
-//        char * parent_src_data;
-//        GetData(parentPage, &parent_src_data);
-//        auto parentKeyList = parent_src_data + parentNode->keys_offset;
-//        auto parentChildren = parent_src_data + parentNode->rids_offset;
-//        printf("???");
-//    }
+    if (pData[0] == (char) 216) {
+        auto parentPage = new PF_PageHandle;
+        IX_Node * parentNode;
+        char * parentKeyList, * parentChildren;
+        char * parent_src_data;
+
+        parentNode = getIxNode(indexHandle, 15, parentPage);
+        GetData(parentPage, &parent_src_data);
+        parentKeyList = parent_src_data + parentNode->keys_offset;
+        parentChildren = parent_src_data + parentNode->rids_offset;
+        printf("fuck here");
+    }
 
     int deletePos = -1;
     auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, realKey);
@@ -703,9 +704,12 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         char * leftSiblingSrcData, * rightSiblingSrcData;
 
         bool isLeftEnough = false, isRightEnough = false;
-        auto leftSiblingPage = new PF_PageHandle;
-        auto rightSiblingPage = new PF_PageHandle;
+        PF_PageHandle * leftSiblingPage = nullptr;
+        PF_PageHandle * rightSiblingPage = nullptr;
+        bool hasLeftSibling = false, hasRightSibling = false;
         if (numAsChild != 0) {
+            hasLeftSibling = true;
+            leftSiblingPage = new PF_PageHandle;
             getFromList(sizeof(PageNum), parentChildren, (char *) &leftSiblingPageNum, numAsChild - 1);
             leftSiblingNode = getIxNode(indexHandle, leftSiblingPageNum, leftSiblingPage);
             isLeftEnough = (leftSiblingNode->keynum > (ceil((double) order / 2.0)));
@@ -714,6 +718,8 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             leftSiblingChildList = leftSiblingSrcData + leftSiblingNode->rids_offset;
         }
         if (numAsChild != parentNode->keynum) {
+            hasRightSibling = true;
+            rightSiblingPage = new PF_PageHandle;
             getFromList(sizeof(PageNum), parentChildren, (char *) &rightSiblingPageNum, numAsChild + 1);
             rightSiblingNode = getIxNode(indexHandle, rightSiblingPageNum, rightSiblingPage);
             isRightEnough = (rightSiblingNode->keynum > (ceil((double) order / 2.0)));
@@ -752,9 +758,6 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 
                 setToList(keyLength, parentKeyList, newParentKey, numAsChild - 1);
             }
-
-            MarkDirty(aimNodePage);
-            UnpinPage(aimNodePage);
         } else if (isRightEnough) {
             if (aimNode->is_leaf) {
                 char borrowedKey[keyLength], borrowedRid[sizeof(RID)];
@@ -787,9 +790,6 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
 
                 setToList(keyLength, parentKeyList, newParentKey, numAsChild);
             }
-
-            MarkDirty(aimNodePage);
-            UnpinPage(aimNodePage);
         } else {
             if (leftSiblingNode == nullptr) {
                 leftSiblingNode = aimNode;
@@ -806,6 +806,8 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
                 aimNodePage = rightSiblingPage;
                 // aimNode = rightSibling
 
+                hasLeftSibling = true;
+                hasRightSibling = false;
                 numAsChild++;
             } // to ensure aim node always has a left sibling
 
@@ -859,12 +861,12 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             }
         }
 
-        if (leftSiblingPage->bOpen && leftSiblingPageNum != aimNodePageNum) {
+        if (hasLeftSibling) {
             MarkDirty(leftSiblingPage);
             UnpinPage(leftSiblingPage);
             delete leftSiblingPage;
         }
-        if (rightSiblingPage->bOpen && rightSiblingPageNum != aimNodePageNum) {
+        if (hasRightSibling) {
             MarkDirty(rightSiblingPage);
             UnpinPage(rightSiblingPage);
             delete rightSiblingPage;
@@ -904,6 +906,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             indexHandle->fileHeader->rootPage = rootFirstChild;
             MarkDirty(headerPage);
         }
+        UnpinPage(rootPageHandle);
         delete rootPageHandle;
     }
 
