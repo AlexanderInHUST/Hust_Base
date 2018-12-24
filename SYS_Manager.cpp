@@ -563,24 +563,6 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
                 DeleteEntry(&ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
             }
             CloseIndex(&ix_indexHandle);
-
-//            bool is_done = false;
-//            for (int j = 0; j < removed_num / 200 + 1; j++) {
-//                IX_IndexHandle ix_indexHandle;
-//                OpenIndex(full_index_name, &ix_indexHandle);
-//                for (int k = 0; k < 200; k++) {
-//                    int cur_pos = j * 200 + k;
-//                    if (cur_pos >= removed_num) {
-//                        is_done = true;
-//                        break;
-//                    }
-//                    DeleteEntry(&ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
-//                }
-//                CloseIndex(&ix_indexHandle);
-//                if (is_done) {
-//                    break;
-//                }
-//            }
         }
     }
 

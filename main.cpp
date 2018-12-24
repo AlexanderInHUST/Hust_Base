@@ -47,9 +47,13 @@ int main() {
 //    rid.slotNum = 1;
 //    int testData = 42;
 //
-//    for (int i = 20; i < 40; i++) {
+//    for (int i = 0; i < 50; i++) {
 //        rid.pageNum = i;
 //        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+//    }
+//    for (int i = 0; i < 50; i++) {
+//        rid.pageNum = i;
+//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
 //    }
 //
 //    testData = 43;
@@ -140,26 +144,29 @@ int main() {
     strcat(full_index_name, ".ix.");
     strcat(full_index_name, "hello");
     strcat(full_index_name, ".");
-    strcat(full_index_name, "hello_world1");
+    strcat(full_index_name, "hello_world");
+
+    int tmp = 200;
+    char tmp_char[4];
+    memcpy(tmp_char, &tmp, sizeof(int));
+    auto cons = new Condition[1];
+    cons->op = GreatT;
+    cons->bLhsIsAttr = 1;
+    cons->bRhsIsAttr = 0;
+    cons->lhsAttr.attrName = new char[21];
+    strcpy(cons->lhsAttr.attrName, "hello0");
+    cons->rhsValue.type = ints;
+    cons->rhsValue.data = tmp_char;
+
+    Delete("hello", 1, cons);
+//    Delete("hello", 0, nullptr);
 
     auto index_handle = new IX_IndexHandle;
     OpenIndex(full_index_name, index_handle);
     traverseAll(index_handle);
     CloseIndex(index_handle);
 
-    Delete("hello", 0, nullptr);
 
-//    int tmp = 2;
-//    char tmp_char[4];
-//    memcpy(tmp_char, &tmp, sizeof(int));
-//    auto cons = new Condition[1];
-//    cons->op = GreatT;
-//    cons->bLhsIsAttr = 1;
-//    cons->bRhsIsAttr = 0;
-//    cons->lhsAttr.attrName = new char[21];
-//    strcpy(cons->lhsAttr.attrName, "hello0");
-//    cons->rhsValue.type = ints;
-//    cons->rhsValue.data = tmp_char;
 //
 //    int tmp_up = 5;
 //    char tmp_up_char[4];
@@ -174,9 +181,9 @@ int main() {
 //
 //    DropIndex("hello_world");
 
-    DropTable((char *) "bye");
-    DropTable((char *) "nice");
-    DropTable((char *) "hello");
-    CloseDB();
+//    DropTable((char *) "bye");
+//    DropTable((char *) "nice");
+//    DropTable((char *) "hello");
+//    CloseDB();
 //    DropDB((char *) "../test");
 }
