@@ -466,7 +466,7 @@ RC Insert(char *relName, int nValues, Value *values) {
                 DEBUG_LOG("Return Code: %d Index \"%s\" inserting idx fails\n",
                           insert_result, index_name[i]);
             }
-            printf("cur_rid : %d.%d, insert into %s: %s\n", cur_rid.pageNum,cur_rid.slotNum, index_name[i], (char *) values[i].data);
+            ALL_LOG("cur_rid : %d.%d, insert into %s: %s\n", cur_rid.pageNum,cur_rid.slotNum, index_name[i], (char *) values[i].data);
             CloseIndex(index_handle);
             delete index_handle;
         }
@@ -542,9 +542,12 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
         removed_num++;
     }
     CloseScan(&rm_fileScan);
-    RM_CloseFile(&rm_fileHandle);
 
-    printf("%d records in %s will be deleted.\n", removed_num, relName);
+    for (int i = 0; i < removed_num; i++) {
+        DeleteRec(&rm_fileHandle, &removed_rid[i]);
+    }
+    RM_CloseFile(&rm_fileHandle);
+    ALL_LOG("%d records in %s will be deleted.\n", removed_num, relName);
 
     for (int i = 0; i < col_num; i++) {
         if (col_is_indx[i]) {
@@ -557,12 +560,13 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
             strcat(full_index_name, ".");
             strcat(full_index_name, col_indx_name[i]);
 
-            IX_IndexHandle ix_indexHandle;
-            OpenIndex(full_index_name, &ix_indexHandle);
             for (int j = 0; j < removed_num; j++) {
-                DeleteEntry(&ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
+                auto ix_indexHandle = new IX_IndexHandle;
+                OpenIndex(full_index_name, ix_indexHandle);
+                DeleteEntry(ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
+                CloseIndex(ix_indexHandle);
+                delete ix_indexHandle;
             }
-            CloseIndex(&ix_indexHandle);
         }
     }
 
@@ -573,87 +577,126 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
 
     return SUCCESS;
 }
-//
-//RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions) {
-//    int col_num = 0;
-//    RC table_exist = GetTableInfo(relName, &col_num);
-//    if (table_exist == TABLE_NOT_EXIST) {
-//        return TABLE_NOT_EXIST;
-//    }
-//
-//    char *col_name[col_num];
-//    int col_length[col_num];
-//    int col_offset[col_num];
-//    AttrType col_types[col_num];
-//    bool col_is_indx[col_num];
-//    char *col_indx_name[col_num];
-//
-//    for (int i = 0; i < col_num; i++) {
-//        col_name[i] = new char[255];
-//        col_indx_name[i] = new char[255];
-//    }
-//
-//    GetColsInfo(relName, col_num, col_name, col_types, col_length, col_offset, col_is_indx, col_indx_name);
-//
-//    auto cons = convert_conditions(nConditions, conditions, col_num, col_name, col_length, col_offset, col_types);
-//
-//    char full_table_name[255];
-//    strcpy(full_table_name, sys_dbname);
-//    strcat(full_table_name, ".tb.");
-//    strcat(full_table_name, relName);
-//
-//    auto rm_fileHandle = new RM_FileHandle;
-//    auto rm_fileScan = new RM_FileScan;
-//    RM_OpenFile(full_table_name, rm_fileHandle);
-//    OpenScan(rm_fileScan, rm_fileHandle, nConditions, cons);
-//
-//    while (true) {
-//        RM_Record record;
-//        RC result = GetNextRec(rm_fileScan, &record);
-//        if (result != SUCCESS)  {
-//            break;
-//        }
-//
-//        auto data_size = rm_fileHandle->rm_fileSubHeader->recordSize - sizeof(bool) - sizeof(RID);
-//        char updated_data[data_size];
-//        memcpy(updated_data, record.pData, sizeof(data_size));
-//        for (int i = 0; i < col_num; i++) {
-//            if (strcmp(col_name[i], attrName) == 0) {
-//                memcpy(updated_data + col_offset[i], value->data, (size_t) col_length[i]);
-//
-//                if (col_is_indx[i] == 1) {
-//                    char full_index_name[255];
-//                    strcpy(full_index_name, sys_dbname);
-//                    strcat(full_index_name, ".ix.");
-//                    strcat(full_index_name, relName);
-//                    strcat(full_index_name, ".");
-//                    strcat(full_index_name, col_indx_name[i]);
-//
-//                    auto cur_offset = col_offset[i];
-//
-//                    auto index_handle = new IX_IndexHandle;
-//                    OpenIndex(full_index_name, index_handle);
-//                    DeleteEntry(index_handle, record.pData + cur_offset, &record.rid);
-//                    InsertEntry(index_handle, (char *) value->data, &record.rid);
-//                    CloseIndex(index_handle);
-//                }
-//                break;
-//            }
-//        }
-//        record.pData = updated_data;
-//        UpdateRec(rm_fileHandle, &record);
-//    }
-//    CloseScan(rm_fileScan);
-//    RM_CloseFile(rm_fileHandle);
-//
-//    for (int i = 0; i < col_num; i++) {
-//        delete col_name[i];
-//        delete col_indx_name[i];
-//    }
-//
-//    return PF_NOBUF;
-//}
-//
+
+RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions) {
+    Con table_condition;
+    table_condition.bLhsIsAttr = 1;
+    table_condition.bRhsIsAttr = 0;
+    table_condition.compOp = EQual;
+    table_condition.attrType = chars;
+    table_condition.LattrOffset = 0;
+    table_condition.LattrLength = 21;
+    table_condition.Rvalue = relName;
+    int col_num = 0, updated_attr_pos = 0;
+
+    OpenSysTables();
+    RM_Record table_record;
+    RM_FileScan table_scan;
+    OpenScan(&table_scan, table_file_handle, 1, &table_condition);
+    RC is_existed = GetNextRec(&table_scan, &table_record);
+    if (is_existed != SUCCESS) {
+        DEBUG_LOG("Return Code: %d Table \"%s\" doesn't exist\n", is_existed, relName);
+
+        CloseScan(&table_scan);
+        CloseSysTables();
+        return is_existed;
+    }
+    memcpy(&col_num, table_record.pData + TABLENAME_SIZE, sizeof(int));
+    CloseScan(&table_scan);
+    CloseSysTables();
+
+    char *col_name[col_num];
+    int col_length[col_num];
+    int col_offset[col_num];
+    AttrType col_types[col_num];
+    bool col_is_indx[col_num];
+    char *col_indx_name[col_num];
+
+    for (int i = 0; i < col_num; i++) {
+        col_name[i] = new char[255];
+        col_indx_name[i] = new char[255];
+    }
+
+    GetColsInfo(relName, col_name, col_types, col_length, col_offset, col_is_indx, col_indx_name);
+    auto cons = convert_conditions(nConditions, conditions, col_num, col_name, col_length, col_offset, col_types);
+    for (int i = 0; i < col_num; i++) {
+        if (strcmp(col_name[i], attrName) == 0) {
+            updated_attr_pos = i;
+            break;
+        }
+    }
+
+    char full_tab_name[255];
+    strcpy(full_tab_name, sys_dbpath);
+    strcat(full_tab_name, "/");
+    strcat(full_tab_name, sys_dbname);
+    strcat(full_tab_name, ".tb.");
+    strcat(full_tab_name, relName);
+
+    RM_FileHandle rm_fileHandle;
+    RM_FileScan rm_fileScan;
+    RM_OpenFile(full_tab_name, &rm_fileHandle);
+    OpenScan(&rm_fileScan, &rm_fileHandle, nConditions, cons);
+    RID removed_rid[rm_fileHandle.rm_fileSubHeader->nRecords];
+    char removed_data[rm_fileHandle.rm_fileSubHeader->nRecords][rm_fileHandle.rm_fileSubHeader->recordSize - sizeof(bool) - sizeof(RID)];
+    char old_attr_data[rm_fileHandle.rm_fileSubHeader->nRecords][col_length[updated_attr_pos]];
+    int removed_num = 0;
+
+    while (true) {
+        RM_Record record;
+        RC result = GetNextRec(&rm_fileScan, &record);
+        if (result != SUCCESS)  {
+            break;
+        }
+        removed_rid[removed_num] = record.rid;
+        memcpy(removed_data[removed_num], record.pData, (size_t) rm_fileHandle.rm_fileSubHeader->recordSize - sizeof(bool) - sizeof(RID));
+        memcpy(old_attr_data[removed_num], record.pData + col_offset[updated_attr_pos], (size_t) col_length[updated_attr_pos]);
+        memcpy(removed_data[removed_num] + col_offset[updated_attr_pos], value->data, (size_t) col_length[updated_attr_pos]);
+        removed_num++;
+    }
+    CloseScan(&rm_fileScan);
+
+    for (int i = 0; i < removed_num; i++) {
+        RM_Record updated_record;
+        updated_record.bValid = true;
+        updated_record.rid = removed_rid[i];
+        updated_record.pData = removed_data[i];
+        UpdateRec(&rm_fileHandle, &updated_record);
+    }
+    RM_CloseFile(&rm_fileHandle);
+
+    ALL_LOG("%d records in %s will be updated.\n", removed_num, relName);
+
+    for (int i = 0; i < col_num; i++) {
+        if (col_is_indx[i]) {
+            char full_index_name[255];
+            strcpy(full_index_name, sys_dbpath);
+            strcat(full_index_name, "/");
+            strcat(full_index_name, sys_dbname);
+            strcat(full_index_name, ".ix.");
+            strcat(full_index_name, relName);
+            strcat(full_index_name, ".");
+            strcat(full_index_name, col_indx_name[i]);
+
+            for (int j = 0; j < removed_num; j++) {
+                auto ix_indexHandle = new IX_IndexHandle;
+                OpenIndex(full_index_name, ix_indexHandle);
+                DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j]);
+                InsertEntry(ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
+                CloseIndex(ix_indexHandle);
+                delete ix_indexHandle;
+            }
+        }
+    }
+
+    for (int i = 0; i < col_num; i++) {
+        delete col_name[i];
+        delete col_indx_name[i];
+    }
+
+    return SUCCESS;
+}
+
 RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrLength, int * attrOffset,
                bool * ixFlag, char ** indexName) {
     Con table_condition;
@@ -691,20 +734,3 @@ RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrL
     CloseSysCols();
     return SUCCESS;
 }
-
-//
-//RC GetTableInfo(char *relName, int *colNum) {
-//    bool isFound = false;
-//    for (int i = 0; i < sys_table_row_num; i++) {
-//        char * curRow = sys_table_data + TABLE_ROW_SIZE * i;
-//        if (strcmp(curRow, relName) == 0) {
-//            memcpy(colNum, curRow + TABLENAME_SIZE, sizeof(int));
-//            isFound = true;
-//            break;
-//        }
-//    }
-//    if (!isFound) {
-//        return TABLE_NOT_EXIST;
-//    }
-//    return SUCCESS;
-//}

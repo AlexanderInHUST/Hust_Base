@@ -113,9 +113,6 @@ PageNum createNewNode(IX_IndexHandle *indexHandle) {
 
 IX_Node * getIxNode(IX_IndexHandle *indexHandle, PageNum pageNum, PF_PageHandle * pf_pageHandle) {
     RC result = GetThisPage(indexHandle->fileHandle, pageNum, pf_pageHandle);
-    if (result != SUCCESS) {
-        printf("??");
-    }
     char *src_data;
     GetData(pf_pageHandle, &src_data);
     return (IX_Node *) (src_data + sizeof(IX_FileHeader));
@@ -621,21 +618,6 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     memcpy(realKey, pData, sizeof(char) * attrLength);
     memcpy(realKey + attrLength, rid, sizeof(RID));
     // basic info
-
-//    if (pData[0] == (char) 216) {
-//        PageNum parentPageNum;
-//        auto parentPage = new PF_PageHandle;
-//        IX_Node * parentNode;
-//        char * parentKeyList, * parentChildren;
-//        char * parent_src_data;
-//
-//        parentNode = getIxNode(indexHandle, 271, parentPage);
-//        GetData(parentPage, &parent_src_data);
-//        parentKeyList = parent_src_data + parentNode->keys_offset;
-//        parentChildren = parent_src_data + parentNode->rids_offset;
-//        printf("123");
-//        // initialize parent's info
-//    }
 
     int deletePos = -1;
     auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, realKey);
