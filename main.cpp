@@ -51,120 +51,118 @@ int main() {
 //
 //    RM_CloseFile(rm_fileHandle);
 
-    auto ix_indexHandle = new IX_IndexHandle;
-    CreateIndex("../test.ix", ints, sizeof(int));
-    OpenIndex("../test.ix", ix_indexHandle);
-
-    RID rid;
-    rid.bValid = true;
-    rid.slotNum = 1;
-    int testData = 42;
-
-    for (int i = 0; i < 500; i++) {
-        rid.pageNum = i;
-        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
-    }
-    printf("insert done\n");
-    for (int i = 0; i < 20; i++) {
-        rid.pageNum = i;
-        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-    }
-    rid.pageNum = 20;
-    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-
-
-//    testData = 43;
-//    for (int i = 40; i < 50; i++) {
+//    auto ix_indexHandle = new IX_IndexHandle;
+//    CreateIndex("../test.ix", ints, sizeof(int));
+//    OpenIndex("../test.ix", ix_indexHandle);
+//
+//    RID rid;
+//    rid.bValid = true;
+//    rid.slotNum = 1;
+//    int testData = 42;
+//
+//    for (int i = 0; i < 5000; i++) {
 //        rid.pageNum = i;
 //        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
 //    }
-//    printf("?\n");
-//
-//    int tmp = 43;
-//    auto indexScan = new IX_IndexScan;
-//    OpenIndexScan(indexScan, ix_indexHandle, GEqual, (char *) &tmp);
-//    while (true) {
-//        RID tmpRid;
-//        int isExist = IX_GetNextEntry(indexScan, &tmpRid);
-//        if (isExist == INDEX_NOT_EXIST) {
-//            break;
-//        }
-//        printf("rid: %d %d\n", tmpRid.pageNum, tmpRid.slotNum);
+//    printf("insert done\n");
+//    for (int i = 0; i < 2000; i++) {
+//        rid.pageNum = i;
+//        DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
 //    }
-    traverseAll(ix_indexHandle);
-    CloseIndex(ix_indexHandle);
+//
+//
+////    testData = 43;
+////    for (int i = 40; i < 50; i++) {
+////        rid.pageNum = i;
+////        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
+////    }
+////    printf("?\n");
+////
+////    int tmp = 43;
+////    auto indexScan = new IX_IndexScan;
+////    OpenIndexScan(indexScan, ix_indexHandle, GEqual, (char *) &tmp);
+////    while (true) {
+////        RID tmpRid;
+////        int isExist = IX_GetNextEntry(indexScan, &tmpRid);
+////        if (isExist == INDEX_NOT_EXIST) {
+////            break;
+////        }
+////        printf("rid: %d %d\n", tmpRid.pageNum, tmpRid.slotNum);
+////    }
+//    traverseAll(ix_indexHandle);
+//    CloseIndex(ix_indexHandle);
+//
+//    auto tree = new Tree;
+//    GetIndexTree((char *) "../test.ix", tree);
 
-    auto tree = new Tree;
-    GetIndexTree((char *) "../test.ix", tree);
+    CreateDB((char *)"..", (char *)"test");
+    OpenDB((char *) "test");
 
-//    CreateDB((char *)"..", (char *)"test");
-//    OpenDB((char *) "test");
-//
-//    auto attributes = new AttrInfo[5];
-//    for (int i = 0; i < 5; i++) {
-//        auto cur_attr = &attributes[i];
-//        cur_attr->attrType = ints;
-//        cur_attr->attrLength = 4;
-//        cur_attr->attrName = new char[21];
-//        char tmp[10];
-//        sprintf(tmp, "%d", i);
-//        strcpy(cur_attr->attrName, (char *) "hello");
-//        strcat(cur_attr->attrName, tmp);
-//    }
-//    CreateTable((char *) "hello", 5, attributes);
-//
-//    attributes = new AttrInfo[6];
-//    for (int i = 0; i < 6; i++) {
-//        auto cur_attr = &attributes[i];
-//        cur_attr->attrType = chars;
-//        cur_attr->attrLength = 4;
-//        cur_attr->attrName = new char[21];
-//        char tmp[10];
-//        sprintf(tmp, "%d", i);
-//        strcpy(cur_attr->attrName, (char *) "bye");
-//        strcat(cur_attr->attrName, tmp);
-//    }
-//    CreateTable((char *) "bye", 6, attributes);
-//
-//    attributes = new AttrInfo[6];
-//    for (int i = 0; i < 6; i++) {
-//        auto cur_attr = &attributes[i];
-//        cur_attr->attrType = chars;
-//        cur_attr->attrLength = 4;
-//        cur_attr->attrName = new char[21];
-//        char tmp[10];
-//        sprintf(tmp, "%d", i);
-//        strcpy(cur_attr->attrName, (char *) "nice");
-//        strcat(cur_attr->attrName, tmp);
-//    }
-//    CreateTable((char *) "nice", 6, attributes);
-//
-//    CreateIndex("hello_world", "hello", "hello0");
-//    CreateIndex("hello_world1", "hello", "hello2");
-//    CreateIndex("hello_world2", "bye", "bye1");
-//
-//    Value test_values[5];
-//    for (int i = 0; i < 5; i++) {
-//        test_values[i].type = ints;
-//        test_values[i].data = new char[4];
-//        memcpy(test_values[i].data, &i, sizeof(int));
-//    }
-//
-//    for (int i = 0; i < 500; i++) {
-//        memcpy(test_values[0].data, &i, sizeof(int));
-//        Insert("hello", 5, test_values);
-//    }
-//
-//    char full_index_name[255];
-//    strcpy(full_index_name, sys_dbpath);
-//    strcat(full_index_name, "/");
-//    strcat(full_index_name, sys_dbname);
-//    strcat(full_index_name, ".ix.");
-//    strcat(full_index_name, "hello");
-//    strcat(full_index_name, ".");
-//    strcat(full_index_name, "hello_world1");
-//
-//    int tmp = 200;
+    auto attributes = new AttrInfo[5];
+    for (int i = 0; i < 5; i++) {
+        auto cur_attr = &attributes[i];
+        cur_attr->attrType = ints;
+        cur_attr->attrLength = 4;
+        cur_attr->attrName = new char[21];
+        char tmp[10];
+        sprintf(tmp, "%d", i);
+        strcpy(cur_attr->attrName, (char *) "hello");
+        strcat(cur_attr->attrName, tmp);
+    }
+    CreateTable((char *) "hello", 5, attributes);
+
+    attributes = new AttrInfo[6];
+    for (int i = 0; i < 6; i++) {
+        auto cur_attr = &attributes[i];
+        cur_attr->attrType = chars;
+        cur_attr->attrLength = 4;
+        cur_attr->attrName = new char[21];
+        char tmp[10];
+        sprintf(tmp, "%d", i);
+        strcpy(cur_attr->attrName, (char *) "bye");
+        strcat(cur_attr->attrName, tmp);
+    }
+    CreateTable((char *) "bye", 6, attributes);
+
+    attributes = new AttrInfo[6];
+    for (int i = 0; i < 6; i++) {
+        auto cur_attr = &attributes[i];
+        cur_attr->attrType = chars;
+        cur_attr->attrLength = 4;
+        cur_attr->attrName = new char[21];
+        char tmp[10];
+        sprintf(tmp, "%d", i);
+        strcpy(cur_attr->attrName, (char *) "nice");
+        strcat(cur_attr->attrName, tmp);
+    }
+    CreateTable((char *) "nice", 6, attributes);
+
+    CreateIndex("hello_world", "hello", "hello0");
+    CreateIndex("hello_world1", "hello", "hello2");
+    CreateIndex("hello_world2", "bye", "bye1");
+
+    Value test_values[5];
+    for (int i = 0; i < 5; i++) {
+        test_values[i].type = ints;
+        test_values[i].data = new char[4];
+        memcpy(test_values[i].data, &i, sizeof(int));
+    }
+
+    for (int i = 0; i < 5000; i++) {
+        memcpy(test_values[0].data, &i, sizeof(int));
+        Insert("hello", 5, test_values);
+    }
+
+    char full_index_name[255];
+    strcpy(full_index_name, sys_dbpath);
+    strcat(full_index_name, "/");
+    strcat(full_index_name, sys_dbname);
+    strcat(full_index_name, ".ix.");
+    strcat(full_index_name, "hello");
+    strcat(full_index_name, ".");
+    strcat(full_index_name, "hello_world1");
+
+//    int tmp = 20;
 //    char tmp_char[4];
 //    memcpy(tmp_char, &tmp, sizeof(int));
 //    auto cons = new Condition[1];
@@ -175,7 +173,7 @@ int main() {
 //    strcpy(cons->lhsAttr.attrName, "hello0");
 //    cons->rhsValue.type = ints;
 //    cons->rhsValue.data = tmp_char;
-//
+
 //    int tmp_up = 300;
 //    char tmp_up_char[4];
 //    memcpy(tmp_up_char, &tmp_up, sizeof(int));
@@ -183,31 +181,31 @@ int main() {
 //    tmp_value.type = ints;
 //    tmp_value.data = tmp_up_char;
 //    Update("hello", "hello0", &tmp_value, 1, cons);
+
+    Delete("hello", 0, nullptr);
+//    for (int i = 1001; i < 5000; i++) {
+//        memcpy(test_values[0].data, &i, sizeof(int));
+//        Insert("hello", 5, test_values);
+//    }
+
+//    Delete("hello", 0, nullptr);
+
+    auto index_handle = new IX_IndexHandle;
+    OpenIndex(full_index_name, index_handle);
+    traverseAll(index_handle);
+    CloseIndex(index_handle);
+
+//
+
 //
 ////    Delete("hello", 1, cons);
-////    for (int i = 1001; i < 5000; i++) {
-////        memcpy(test_values[0].data, &i, sizeof(int));
-////        Insert("hello", 5, test_values);
-////    }
 //
-////    Delete("hello", 0, nullptr);
 //
-//    auto index_handle = new IX_IndexHandle;
-//    OpenIndex(full_index_name, index_handle);
-//    traverseAll(index_handle);
-//    CloseIndex(index_handle);
-//
-////
-//
-////
-//////    Delete("hello", 1, cons);
-////
-////
-////    DropIndex("hello_world");
-//
-////    DropTable((char *) "bye");
-////    DropTable((char *) "nice");
-////    DropTable((char *) "hello");
-////    CloseDB();
-////    DropDB((char *) "../test");
+//    DropIndex("hello_world");
+
+//    DropTable((char *) "bye");
+//    DropTable((char *) "nice");
+//    DropTable((char *) "hello");
+//    CloseDB();
+//    DropDB((char *) "../test");
 }
