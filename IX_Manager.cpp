@@ -371,8 +371,6 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     AttrType attrType = indexHandle->fileHeader->attrType;
     int attrLength = indexHandle->fileHeader->attrLength;
     int keyLength = indexHandle->fileHeader->keyLength;
-//    auto headerPage = new PF_PageHandle;
-//    GetThisPage(indexHandle->fileHandle, 1, headerPage);
 
     char realKey[keyLength];
     memcpy(realKey, pData, sizeof(char) * attrLength);
@@ -410,7 +408,6 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     if (isValid) {
         MarkDirty(indexHandle->fileHandle, aimNodePage);
         UnpinPage(aimNodePage);
-//        delete headerPage;
         delete aimNodePage;
         return SUCCESS;
     }
@@ -426,12 +423,19 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         auto newIdx = new char[keyLength];
         getFromList(keyLength, aimNodeKeyList, newIdx, newIdxPos);
         int numAsChild = -1;
-
         parentPageNum = aimNode->parent;
 
         bool shouldCreateNew = parentPageNum == 0;
         if (shouldCreateNew) {
             parentPageNum = createNewNode(indexHandle);
+        }
+
+        if (aimNodePageNum == 204) {
+            printf("???");
+        }
+
+        if (parentPageNum == 204) {
+            printf("???");
         }
 
         parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
@@ -444,7 +448,6 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
             // do not need to add up on key num
             aimNode->parent = parentPageNum;
             indexHandle->fileHeader->rootPage = parentPageNum;
-//            MarkDirty(headerPage);
             MarkDirty(indexHandle->fileHandle, indexHandle->headerPage);
         }   // change the root
         // prepare those data pointer
@@ -633,7 +636,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     memcpy(realKey + attrLength, rid, sizeof(RID));
     // basic info
 
-    if (rid->pageNum == 0) {
+    if (rid->pageNum == 1) {
         PageNum parentPageNum;
         auto parentPage = new PF_PageHandle;
         IX_Node * parentNode;
@@ -862,7 +865,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
                     delete curChildPage;
                 }
 
-                memcpy(leftSiblingChildList + sizeof(PageNum) * leftSiblingNodeChildNum, aimNodeRidList, sizeof(PageNum) * aimNode->keynum + 1);
+                memcpy(leftSiblingChildList + sizeof(PageNum) * leftSiblingNodeChildNum, aimNodeRidList, sizeof(PageNum) * (aimNode->keynum + 1));
                 // add all children
                 removeFromList(sizeof(PageNum), parentChildren, parentNode->keynum + 1, dumpPageNum, numAsChild);
                 removeFromList(keyLength, parentKeyList, parentNode->keynum, dumpKey, numAsChild - 1);

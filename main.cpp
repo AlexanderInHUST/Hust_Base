@@ -71,14 +71,15 @@ int main() {
     }
     rid.pageNum = 20;
     DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
-//
+
+
 //    testData = 43;
 //    for (int i = 40; i < 50; i++) {
 //        rid.pageNum = i;
 //        InsertEntry(ix_indexHandle, (char *) &testData, &rid);
 //    }
 //    printf("?\n");
-
+//
 //    int tmp = 43;
 //    auto indexScan = new IX_IndexScan;
 //    OpenIndexScan(indexScan, ix_indexHandle, GEqual, (char *) &tmp);
