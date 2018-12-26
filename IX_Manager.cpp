@@ -21,8 +21,8 @@ RC CreateIndex(const char *fileName, AttrType attrType, int attrLength) {
     ix_fileHeader->attrType = attrType;
     ix_fileHeader->rootPage = 1;
     ix_fileHeader->first_leaf = 1;
-    ix_fileHeader->order = keys_size - 2; // debug here!
-//    ix_fileHeader->order = 4;
+//    ix_fileHeader->order = keys_size - 2; // debug here!
+    ix_fileHeader->order = 4;
     // -1 -> for extra child in children list; -1 -> for possible insert place
 
     auto ix_node = new IX_Node;
@@ -833,7 +833,7 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
                     delete curChildPage;
                 }
 
-                memcpy(leftSiblingChildList + sizeof(PageNum) * leftSiblingNodeChildNum, aimNodeRidList, sizeof(PageNum) * aimNode->keynum + 1);
+                memcpy(leftSiblingChildList + sizeof(PageNum) * leftSiblingNodeChildNum, aimNodeRidList, sizeof(PageNum) * (aimNode->keynum + 1));
                 // add all children
                 removeFromList(sizeof(PageNum), parentChildren, parentNode->keynum + 1, dumpPageNum, numAsChild);
                 removeFromList(keyLength, parentKeyList, parentNode->keynum, dumpKey, numAsChild - 1);
