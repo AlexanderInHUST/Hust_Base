@@ -5,7 +5,7 @@
 #ifndef HUST_BASE_KERNEL_IX_MANAGER_H
 #define HUST_BASE_KERNEL_IX_MANAGER_H
 
-#include "PF_Manager.h"
+#include "PF_Manager_No_Buff.h"
 #include "RM_Manager.h"
 
 typedef struct {
@@ -34,6 +34,7 @@ typedef struct {
     bool bOpen;
     PF_FileHandle * fileHandle; // fix here
     IX_FileHeader * fileHeader; // fix here
+    PF_PageHandle * headerPage;
 } IX_IndexHandle;
 
 typedef struct {

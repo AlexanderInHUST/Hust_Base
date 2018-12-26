@@ -390,7 +390,7 @@ RC UpdateRec(RM_FileHandle *fileHandle, const RM_Record *rec) {
     memcpy(dst_data + sizeof(int) + sizeof(char) * bitmapSize + sizeof(char) * recordSize * rec->rid.slotNum + sizeof(bool) + sizeof(RID),
            rec->pData, sizeof(char) * dataSize);
 
-    MarkDirty(pf_fileHandle);
+    MarkDirty(fileHandle->pf_fileHandle, pf_fileHandle);
     UnpinPage(pf_fileHandle);
     delete pf_fileHandle;
     return SUCCESS;
@@ -422,8 +422,8 @@ RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
         // dispose that page
     }
 
-    auto rm_headerPage = new PF_PageHandle;
-    GetThisPage(fileHandle->pf_fileHandle, 1, rm_headerPage);
+//    auto rm_headerPage = new PF_PageHandle;
+//    GetThisPage(fileHandle->pf_fileHandle, 1, rm_headerPage);
     fileHandle->rm_fileSubHeader->nRecords--;
 
     if (shouldDeleteFull) {
@@ -432,13 +432,15 @@ RC DeleteRec(RM_FileHandle *fileHandle, const RID *rid) {
         *theVeryMap &= ~innerMask;
     } // erase mark in full bitmap
 
-    MarkDirty(rm_headerPage);
-    UnpinPage(rm_headerPage);
-    MarkDirty(pf_pageHandle);
+//    MarkDirty(rm_headerPage);
+//    UnpinPage(rm_headerPage);
+    MarkDirty(fileHandle->pf_fileHandle, fileHandle->pf_headerPage);
+    UnpinPage(fileHandle->pf_headerPage);
+    MarkDirty(fileHandle->pf_fileHandle, pf_pageHandle);
     UnpinPage(pf_pageHandle);
 
     delete pf_pageHandle;
-    delete rm_headerPage;
+//    delete rm_headerPage;
     return SUCCESS;
 }
 
@@ -471,7 +473,7 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
         AllocatePage(fileHandle->pf_fileHandle, pf_pageHandle);
         GetPageNum(pf_pageHandle, &newRecordPagePos);
         GetData(pf_pageHandle, &tmp);
-        memset(tmp, 0, PF_PAGESIZE);
+        memset(tmp, 0, PF_PAGE_SIZE);
     } else {
         GetThisPage(fileHandle->pf_fileHandle, newRecordPagePos, pf_pageHandle);
     } // get the dst page num
@@ -512,7 +514,7 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
 //    memcpy(dst_data + sizeof(int), recordsMap, sizeof(char) * bitmapSize);
     // store page header info
 
-    MarkDirty(pf_pageHandle);
+    MarkDirty(fileHandle->pf_fileHandle, pf_pageHandle);
     UnpinPage(pf_pageHandle);
     // store and close data page file
 
@@ -526,21 +528,15 @@ RC InsertRec(RM_FileHandle *fileHandle, char *pData, RID *rid) { // fixme: pData
     fileHandle->rm_fileSubHeader->nRecords++;
     // update global info
 
-//    char * head_data;
-    auto rm_header_page = new PF_PageHandle;
-    GetThisPage(fileHandle->pf_fileHandle, 1, rm_header_page);
-//    GetData(rm_header_page, &head_data);
-//
-//    memcpy(head_data, fileHandle->rm_fileSubHeader, sizeof(RM_FileSubHeader));
-//    if (fullMapPos != -1) {
-//        memcpy(head_data + sizeof(RM_FileSubHeader) + sizeof(char) * fullMapPos, &fileHandle->header_bitmap[fullMapPos], sizeof(char));
-//    } // if full has been updated
-
-    MarkDirty(rm_header_page);
-    UnpinPage(rm_header_page);
+//    auto rm_header_page = new PF_PageHandle;
+//    GetThisPage(fileHandle->pf_fileHandle, 1, rm_header_page);
+//    MarkDirty(rm_header_page);
+//    UnpinPage(rm_header_page);
+    MarkDirty(fileHandle->pf_fileHandle, fileHandle->pf_headerPage);
+    UnpinPage(fileHandle->pf_headerPage);
 
     delete pf_pageHandle;
-    delete rm_header_page;
+//    delete rm_header_page;
     return SUCCESS;
 }
 
@@ -574,6 +570,7 @@ RC RM_CloseFile(RM_FileHandle *fileHandle) {
     CloseFile(fileHandle->pf_fileHandle);
     fileHandle->bOpen = false;
     delete fileHandle->pf_fileHandle;
+    delete fileHandle->pf_headerPage;
     return SUCCESS;
 }
 
@@ -584,17 +581,15 @@ RC RM_OpenFile(char *fileName, RM_FileHandle *fileHandle) {
         return PF_FILEERR;
     }
 
-    auto pf_pageHandle = new PF_PageHandle;
-    GetThisPage(pf_fileHandle, 1, pf_pageHandle);
+    fileHandle->pf_headerPage = new PF_PageHandle;
+    GetThisPage(pf_fileHandle, 1, fileHandle->pf_headerPage);
     char *src_data;
-    GetData(pf_pageHandle, &src_data);
+    GetData(fileHandle->pf_headerPage, &src_data);
 
     fileHandle->bOpen = true;
     fileHandle->rm_fileSubHeader = (RM_FileSubHeader *)src_data;
     fileHandle->pf_fileHandle = pf_fileHandle;
     fileHandle->header_bitmap = src_data + sizeof(RM_FileSubHeader);
-
-    delete pf_pageHandle;
     return SUCCESS;
 }
 
@@ -622,7 +617,7 @@ RC RM_CreateFile(char *fileName, int recordSize) {
     memcpy(dst_data, &rm_fileSubHeader, sizeof(RM_FileSubHeader));
     memcpy(dst_data + sizeof(RM_FileSubHeader), &initial_map, sizeof(char));
 
-    MarkDirty(pf_pageHandle);
+    MarkDirty(pf_fileHandle, pf_pageHandle);
     UnpinPage(pf_pageHandle);
     CloseFile(pf_fileHandle);
 

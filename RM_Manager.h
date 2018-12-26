@@ -5,7 +5,7 @@
 #ifndef HUST_BASE_KERNEL_RM_MANAGER_H
 #define HUST_BASE_KERNEL_RM_MANAGER_H
 
-#include "PF_Manager.h"
+#include "PF_Manager_No_Buff.h"
 #include "Bit_tools.h"
 #include "math.h"
 #include "str.h"
@@ -42,6 +42,7 @@ typedef struct {//文件句柄
     bool bOpen;//句柄是否打开（是否正在被使用）
     PF_FileHandle *pf_fileHandle;
     RM_FileSubHeader *rm_fileSubHeader;
+    PF_PageHandle *pf_headerPage;
     char *header_bitmap;
 } RM_FileHandle;
 
