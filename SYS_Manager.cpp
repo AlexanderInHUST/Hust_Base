@@ -560,17 +560,14 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
             strcat(full_index_name, ".");
             strcat(full_index_name, col_indx_name[i]);
 
+            auto ix_indexHandle = new IX_IndexHandle;
+            OpenIndex(full_index_name, ix_indexHandle);
             for (int j = 0; j < removed_num; j++) {
-                auto ix_indexHandle = new IX_IndexHandle;
                 printf("Deleting %d\n", j);
-                if (j == 954) {
-                    printf("??");
-                }
-                OpenIndex(full_index_name, ix_indexHandle);
                 DeleteEntry(ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j], j);
-                CloseIndex(ix_indexHandle);
-                delete ix_indexHandle;
             }
+            CloseIndex(ix_indexHandle);
+            delete ix_indexHandle;
         }
     }
 
@@ -681,18 +678,15 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
         strcat(full_index_name, ".");
         strcat(full_index_name, col_indx_name[updated_attr_pos]);
 
+        auto ix_indexHandle = new IX_IndexHandle;
+        OpenIndex(full_index_name, ix_indexHandle);
         for (int j = 0; j < removed_num; j++) {
-            auto ix_indexHandle = new IX_IndexHandle;
             printf("running %d\n", j);
-            OpenIndex(full_index_name, ix_indexHandle);
             DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j], j);
-            if (j == 1) {
-                printf("???");
-            }
             InsertEntry(ix_indexHandle, removed_data[j] + col_offset[updated_attr_pos], &removed_rid[j]);
-            CloseIndex(ix_indexHandle);
-            delete ix_indexHandle;
         }
+        CloseIndex(ix_indexHandle);
+        delete ix_indexHandle;
     }
 
     for (int i = 0; i < col_num; i++) {

@@ -148,7 +148,7 @@ int main() {
         memcpy(test_values[i].data, &i, sizeof(int));
     }
 
-    for (int i = 0; i < 5000; i++) {
+    for (int i = 0; i < 10000; i++) {
         memcpy(test_values[0].data, &i, sizeof(int));
         Insert("hello", 5, test_values);
     }
@@ -162,7 +162,7 @@ int main() {
     strcat(full_index_name, ".");
     strcat(full_index_name, "hello_world");
 
-    int tmp = 4000;
+    int tmp = 1;
     char tmp_char[4];
     memcpy(tmp_char, &tmp, sizeof(int));
     auto cons = new Condition[1];
@@ -174,7 +174,7 @@ int main() {
     cons->rhsValue.type = ints;
     cons->rhsValue.data = tmp_char;
 
-    int tmp_up = 3000;
+    int tmp_up = 10000;
     char tmp_up_char[4];
     memcpy(tmp_up_char, &tmp_up, sizeof(int));
     Value tmp_value;
@@ -186,13 +186,11 @@ int main() {
 //
     Update("hello", "hello0", &tmp_value, 1, cons);
 //
-//    Delete("hello", 1, cons);
+    Delete("hello", 1, cons);
 //    for (int i = 1001; i < 5000; i++) {
 //        memcpy(test_values[0].data, &i, sizeof(int));
 //        Insert("hello", 5, test_values);
 //    }
-
-    Delete("hello", 0, nullptr);
 
     auto index_handle = new IX_IndexHandle;
     OpenIndex(full_index_name, index_handle);
