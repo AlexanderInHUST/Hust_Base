@@ -60,20 +60,17 @@ int main() {
     rid.slotNum = 1;
     int testData = 42;
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 500; i++) {
         rid.pageNum = i;
         InsertEntry(ix_indexHandle, (char *) &testData, &rid);
     }
-
-    for (int i = 0; i < 50; i++) {
+    printf("insert done\n");
+    for (int i = 0; i < 20; i++) {
         rid.pageNum = i;
-        printf("?? %d\n", i);
-        if (i == 45) {
-            printf("????\n");
-        }
         DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
     }
-    printf("?\n");
+    rid.pageNum = 20;
+    DeleteEntry(ix_indexHandle, (char *) &testData, &rid);
 //
 //    testData = 43;
 //    for (int i = 40; i < 50; i++) {

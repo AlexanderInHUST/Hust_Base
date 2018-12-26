@@ -633,6 +633,21 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
     memcpy(realKey + attrLength, rid, sizeof(RID));
     // basic info
 
+    if (rid->pageNum == 0) {
+        PageNum parentPageNum;
+        auto parentPage = new PF_PageHandle;
+        IX_Node * parentNode;
+        char * parentKeyList, * parentChildren;
+        char * parent_src_data;
+
+        parentPageNum = 245;
+        parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
+        GetData(parentPage, &parent_src_data);
+        parentKeyList = parent_src_data + parentNode->keys_offset;
+        parentChildren = parent_src_data + parentNode->rids_offset;
+        printf("???");
+    }
+
     int deletePos = -1;
     auto aimNodePageNum = findKey(indexHandle, attrType, attrLength, keyLength, realKey);
     auto aimNodePage = new PF_PageHandle;
@@ -881,39 +896,40 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         parentPage = new PF_PageHandle;
         // aimNode = parentNode
         isValid = checkValid(aimNode, order);
-
-        auto rootPageHandle = new PF_PageHandle;
-        auto rootNode = getIxNode(indexHandle, indexHandle->fileHeader->rootPage, rootPageHandle);
-        if (rootNode->keynum == 0) {
-            char * rootSrcData;
-            GetData(rootPageHandle, &rootSrcData);
-            auto rootChild = rootSrcData + rootNode->rids_offset;
-            PageNum rootFirstChild = 0;
-            memcpy(&rootFirstChild, rootChild, sizeof(PageNum));
-            auto rootFirstChildPageHandle = new PF_PageHandle;
-            auto rootFirstChildNode = getIxNode(indexHandle, rootFirstChild, rootFirstChildPageHandle);
-            rootFirstChildNode->parent = 0;
-            rootFirstChildNode->brother = 0;
-
-            MarkDirty(indexHandle->fileHandle, rootFirstChildPageHandle);
-            UnpinPage(rootFirstChildPageHandle);
-            if (indexHandle->fileHeader->rootPage != 2) {
-                DisposePage(indexHandle->fileHandle, indexHandle->fileHeader->rootPage);
-            }
-
-            indexHandle->fileHeader->rootPage = rootFirstChild;
-//            MarkDirty(headerPage);
-            MarkDirty(indexHandle->fileHandle, indexHandle->headerPage);
-        }
-        UnpinPage(rootPageHandle);
-        delete rootPageHandle;
     }
 
     MarkDirty(indexHandle->fileHandle, aimNodePage);
     UnpinPage(aimNodePage);
-//    UnpinPage(headerPage);
     delete aimNodePage;
-//    delete headerPage;
+
+    auto rootPageHandle = new PF_PageHandle;
+    auto rootNode = getIxNode(indexHandle, indexHandle->fileHeader->rootPage, rootPageHandle);
+    if (rootNode->keynum == 0) {
+        char * rootSrcData;
+        GetData(rootPageHandle, &rootSrcData);
+        auto rootChild = rootSrcData + rootNode->rids_offset;
+        PageNum rootFirstChild = 0;
+        memcpy(&rootFirstChild, rootChild, sizeof(PageNum));
+
+        auto rootFirstChildPageHandle = new PF_PageHandle;
+        auto rootFirstChildNode = getIxNode(indexHandle, rootFirstChild, rootFirstChildPageHandle);
+        rootFirstChildNode->parent = 0;
+        rootFirstChildNode->brother = 0;
+
+        MarkDirty(indexHandle->fileHandle, rootFirstChildPageHandle);
+        UnpinPage(rootFirstChildPageHandle);
+        delete rootFirstChildPageHandle;
+
+        if (indexHandle->fileHeader->rootPage != 2) {
+            DisposePage(indexHandle->fileHandle, indexHandle->fileHeader->rootPage);
+        }
+
+        indexHandle->fileHeader->rootPage = rootFirstChild;
+        MarkDirty(indexHandle->fileHandle, indexHandle->headerPage);
+    }
+    UnpinPage(rootPageHandle);
+    delete rootPageHandle;
+
     delete parentPage;
     return SUCCESS;
 }
@@ -1076,6 +1092,9 @@ void generateTreeNode (IX_IndexHandle * indexHandle, PageNum pageNum, Tree_Node 
         char *curChild = rids + i * sizeof(PageNum);
         PageNum curChildPageNum = 0;
         memcpy(&curChildPageNum, curChild, sizeof(PageNum));
+        if (*curChild == (char) 16) {
+            printf("??");
+        }
         generateTreeNode(indexHandle, curChildPageNum, &aim_node->firstChild[i]);
         aim_node->firstChild[i].parent = aim_node;
     } // create all children
