@@ -160,29 +160,33 @@ int main() {
     strcat(full_index_name, ".ix.");
     strcat(full_index_name, "hello");
     strcat(full_index_name, ".");
-    strcat(full_index_name, "hello_world1");
+    strcat(full_index_name, "hello_world");
 
-//    int tmp = 20;
-//    char tmp_char[4];
-//    memcpy(tmp_char, &tmp, sizeof(int));
-//    auto cons = new Condition[1];
-//    cons->op = GreatT;
-//    cons->bLhsIsAttr = 1;
-//    cons->bRhsIsAttr = 0;
-//    cons->lhsAttr.attrName = new char[21];
-//    strcpy(cons->lhsAttr.attrName, "hello0");
-//    cons->rhsValue.type = ints;
-//    cons->rhsValue.data = tmp_char;
+    int tmp = 2000;
+    char tmp_char[4];
+    memcpy(tmp_char, &tmp, sizeof(int));
+    auto cons = new Condition[1];
+    cons->op = GreatT;
+    cons->bLhsIsAttr = 1;
+    cons->bRhsIsAttr = 0;
+    cons->lhsAttr.attrName = new char[21];
+    strcpy(cons->lhsAttr.attrName, "hello0");
+    cons->rhsValue.type = ints;
+    cons->rhsValue.data = tmp_char;
 
-//    int tmp_up = 300;
-//    char tmp_up_char[4];
-//    memcpy(tmp_up_char, &tmp_up, sizeof(int));
-//    Value tmp_value;
-//    tmp_value.type = ints;
-//    tmp_value.data = tmp_up_char;
-//    Update("hello", "hello0", &tmp_value, 1, cons);
+    int tmp_up = 3000;
+    char tmp_up_char[4];
+    memcpy(tmp_up_char, &tmp_up, sizeof(int));
+    Value tmp_value;
+    tmp_value.type = ints;
+    tmp_value.data = tmp_up_char;
 
-    Delete("hello", 0, nullptr);
+//    Tree tree;
+//    GetIndexTree(full_index_name, &tree);
+//
+    Update("hello", "hello0", &tmp_value, 1, cons);
+//
+//    Delete("hello", 1, cons);
 //    for (int i = 1001; i < 5000; i++) {
 //        memcpy(test_values[0].data, &i, sizeof(int));
 //        Insert("hello", 5, test_values);
