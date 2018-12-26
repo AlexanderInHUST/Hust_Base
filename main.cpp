@@ -132,7 +132,7 @@ int main() {
         memcpy(test_values[i].data, &i, sizeof(int));
     }
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 5000; i++) {
         memcpy(test_values[0].data, &i, sizeof(int));
         Insert("hello", 5, test_values);
     }
@@ -145,8 +145,8 @@ int main() {
     strcat(full_index_name, "hello");
     strcat(full_index_name, ".");
     strcat(full_index_name, "hello_world");
-
-    int tmp = 200;
+//
+    int tmp = 2000;
     char tmp_char[4];
     memcpy(tmp_char, &tmp, sizeof(int));
     auto cons = new Condition[1];
@@ -158,7 +158,7 @@ int main() {
     cons->rhsValue.type = ints;
     cons->rhsValue.data = tmp_char;
 
-    int tmp_up = 0;
+    int tmp_up = 1000;
     char tmp_up_char[4];
     memcpy(tmp_up_char, &tmp_up, sizeof(int));
     Value tmp_value;

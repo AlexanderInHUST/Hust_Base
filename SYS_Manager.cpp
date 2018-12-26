@@ -679,6 +679,7 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
             strcat(full_index_name, col_indx_name[i]);
 
             for (int j = 0; j < removed_num; j++) {
+                printf("running %d\n", j);
                 auto ix_indexHandle = new IX_IndexHandle;
                 OpenIndex(full_index_name, ix_indexHandle);
                 DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j]);
