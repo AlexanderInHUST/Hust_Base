@@ -683,8 +683,12 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
 
         for (int j = 0; j < removed_num; j++) {
             auto ix_indexHandle = new IX_IndexHandle;
+            printf("running %d\n", j);
             OpenIndex(full_index_name, ix_indexHandle);
             DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j], j);
+            if (j == 1) {
+                printf("???");
+            }
             InsertEntry(ix_indexHandle, removed_data[j] + col_offset[updated_attr_pos], &removed_rid[j]);
             CloseIndex(ix_indexHandle);
             delete ix_indexHandle;

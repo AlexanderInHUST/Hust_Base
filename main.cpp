@@ -162,7 +162,7 @@ int main() {
     strcat(full_index_name, ".");
     strcat(full_index_name, "hello_world");
 
-    int tmp = 2000;
+    int tmp = 4000;
     char tmp_char[4];
     memcpy(tmp_char, &tmp, sizeof(int));
     auto cons = new Condition[1];
@@ -192,7 +192,7 @@ int main() {
 //        Insert("hello", 5, test_values);
 //    }
 
-//    Delete("hello", 0, nullptr);
+    Delete("hello", 0, nullptr);
 
     auto index_handle = new IX_IndexHandle;
     OpenIndex(full_index_name, index_handle);

@@ -645,14 +645,14 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid, int fla
 //    auto headerPage = new PF_PageHandle;
 //    GetThisPage(indexHandle->fileHandle, 1, headerPage);
 
-    if (flag == 7) {
+    if (flag == 13) {
         PageNum parentPageNum;
         auto parentPage = new PF_PageHandle;
         IX_Node * parentNode;
         char * parentKeyList, * parentChildren;
         char * parent_src_data;
 
-        parentPageNum = 3144;
+        parentPageNum = 37;
         parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
         GetData(parentPage, &parent_src_data);
         parentKeyList = parent_src_data + parentNode->keys_offset;
@@ -788,6 +788,15 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid, int fla
                 aimNode->keynum++;
 
                 setToList(keyLength, parentKeyList, newParentKey, numAsChild - 1);
+
+                PageNum borrowedChildPageNumInt;
+                memcpy(&borrowedChildPageNumInt, borrowedChildPageNum, sizeof(PageNum));
+                auto borrowedChildPage = new PF_PageHandle;
+                auto borrowedChildNode = getIxNode(indexHandle, borrowedChildPageNumInt, borrowedChildPage);
+                borrowedChildNode->parent = aimNodePageNum;
+                MarkDirty(indexHandle->fileHandle, borrowedChildPage);
+                UnpinPage(borrowedChildPage);
+                delete borrowedChildPage; // set borrowed child's parent
             }
         } else if (isRightEnough) {
             if (aimNode->is_leaf) {
@@ -820,6 +829,15 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid, int fla
                 aimNode->keynum++;
 
                 setToList(keyLength, parentKeyList, newParentKey, numAsChild);
+
+                PageNum borrowedChildPageNumInt;
+                memcpy(&borrowedChildPageNumInt, borrowedChildPageNum, sizeof(PageNum));
+                auto borrowedChildPage = new PF_PageHandle;
+                auto borrowedChildNode = getIxNode(indexHandle, borrowedChildPageNumInt, borrowedChildPage);
+                borrowedChildNode->parent = aimNodePageNum;
+                MarkDirty(indexHandle->fileHandle, borrowedChildPage);
+                UnpinPage(borrowedChildPage);
+                delete borrowedChildPage; // set borrowed child's parent
             }
         } else {
             if (leftSiblingNode == nullptr) {
