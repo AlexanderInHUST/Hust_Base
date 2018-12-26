@@ -741,6 +741,15 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
                 aimNode->keynum++;
 
                 setToList(keyLength, parentKeyList, newParentKey, numAsChild - 1);
+
+                PageNum borrowedChildPageNumInt;
+                memcpy(&borrowedChildPageNumInt, borrowedChildPageNum, sizeof(PageNum));
+                auto borrowedChildPage = new PF_PageHandle;
+                auto borrowedChildNode = getIxNode(indexHandle, borrowedChildPageNumInt, borrowedChildPage);
+                borrowedChildNode->parent = aimNodePageNum;
+                MarkDirty(borrowedChildPage);
+                UnpinPage(borrowedChildPage);
+                delete borrowedChildPage; // set borrowed child's parent
             }
         } else if (isRightEnough) {
             if (aimNode->is_leaf) {
@@ -773,6 +782,15 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
                 aimNode->keynum++;
 
                 setToList(keyLength, parentKeyList, newParentKey, numAsChild);
+
+                PageNum borrowedChildPageNumInt;
+                memcpy(&borrowedChildPageNumInt, borrowedChildPageNum, sizeof(PageNum));
+                auto borrowedChildPage = new PF_PageHandle;
+                auto borrowedChildNode = getIxNode(indexHandle, borrowedChildPageNumInt, borrowedChildPage);
+                borrowedChildNode->parent = aimNodePageNum;
+                MarkDirty(borrowedChildPage);
+                UnpinPage(borrowedChildPage);
+                delete borrowedChildPage; // set borrowed child's parent
             }
         } else {
             if (leftSiblingNode == nullptr) {
