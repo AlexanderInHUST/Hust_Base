@@ -197,7 +197,7 @@ bool checkConditions(IX_IndexScan *indexScan, char * check_value) {
     auto attrLength = indexScan->pIXIndexHandle->fileHeader->attrLength;
     auto attrType = indexScan->pIXIndexHandle->fileHeader->attrType;
     char comparedKey[keyLength];
-    memcpy(comparedKey, indexScan->value, sizeof(attrLength));
+    memcpy(comparedKey, indexScan->value, attrLength);
     memset(comparedKey + attrLength, 0, sizeof(RID));
     int compare_result = compareKey(check_value, comparedKey, attrType, attrLength);
     compare_result = (compare_result == -2 || compare_result == 2) ? 0 : compare_result;
@@ -973,7 +973,7 @@ RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid) {
     auto attrType = indexScan->pIXIndexHandle->fileHeader->attrType;
     char realKey[keyLength];
     bool isNew = false;
-    memcpy(realKey, indexScan->value, sizeof(attrLength));
+    memcpy(realKey, indexScan->value, attrLength);
     RID dumpRid;
     if (indexScan->compOp == GreatT) {
         dumpRid.pageNum = (PageNum) -1;

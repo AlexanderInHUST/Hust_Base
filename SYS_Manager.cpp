@@ -667,26 +667,27 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
 
     ALL_LOG("%d records in %s will be updated.\n", removed_num, relName);
 
-    for (int i = 0; i < col_num; i++) {
-        if (col_is_indx[i]) {
-            char full_index_name[255];
-            strcpy(full_index_name, sys_dbpath);
-            strcat(full_index_name, "/");
-            strcat(full_index_name, sys_dbname);
-            strcat(full_index_name, ".ix.");
-            strcat(full_index_name, relName);
-            strcat(full_index_name, ".");
-            strcat(full_index_name, col_indx_name[i]);
+    if (col_is_indx[updated_attr_pos]) {
+        char full_index_name[255];
+        strcpy(full_index_name, sys_dbpath);
+        strcat(full_index_name, "/");
+        strcat(full_index_name, sys_dbname);
+        strcat(full_index_name, ".ix.");
+        strcat(full_index_name, relName);
+        strcat(full_index_name, ".");
+        strcat(full_index_name, col_indx_name[updated_attr_pos]);
 
-            for (int j = 0; j < removed_num; j++) {
-                printf("running %d\n", j);
-                auto ix_indexHandle = new IX_IndexHandle;
-                OpenIndex(full_index_name, ix_indexHandle);
-                DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j]);
-                InsertEntry(ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
-                CloseIndex(ix_indexHandle);
-                delete ix_indexHandle;
+        for (int j = 0; j < removed_num; j++) {
+            printf("running %d\n", j);
+            if (j == 13) {
+                printf("??");
             }
+            auto ix_indexHandle = new IX_IndexHandle;
+            OpenIndex(full_index_name, ix_indexHandle);
+            DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j]);
+            InsertEntry(ix_indexHandle, removed_data[j] + col_offset[updated_attr_pos], &removed_rid[j]);
+            CloseIndex(ix_indexHandle);
+            delete ix_indexHandle;
         }
     }
 
