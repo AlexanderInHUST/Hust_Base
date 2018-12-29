@@ -1,24 +1,8 @@
 //
-// Created by 唐艺峰 on 2018/12/11.
+// Created by 唐艺峰 on 2018/12/26.
 //
 
 #include "PF_Manager.h"
-
-BF_Manager bf_manager;
-
-const RC AllocateBlock(Frame **buffer);
-
-const RC DisposeBlock(Frame *buf);
-
-const RC ForceAllPages(PF_FileHandle *fileHandle);
-
-void inti() {
-    int i;
-    for (i = 0; i < PF_BUFFER_SIZE; i++) {
-        bf_manager.allocated[i] = false;
-        bf_manager.frame[i].pinCount = 0;
-    }
-}
 
 const RC CreateFile(const char *fileName) {
     int fd;
@@ -26,8 +10,9 @@ const RC CreateFile(const char *fileName) {
     PF_FileSubHeader *fileSubHeader;
     fd = open(fileName, O_RDWR | O_CREAT | O_EXCL, //  | O_BINARY in windows
               S_IREAD | S_IWRITE);
-    if (fd < 0)
+    if (fd < 0) {
         return PF_EXIST;
+    }
     close(fd);
     fd = open(fileName, O_RDWR);
     Page page;
@@ -36,164 +21,70 @@ const RC CreateFile(const char *fileName) {
     fileSubHeader = (PF_FileSubHeader *) page.pData;
     fileSubHeader->nAllocatedPages = 1;
     bitmap[0] |= 0x01;
-    if (lseek(fd, 0, SEEK_SET) == -1)
+    if (lseek(fd, 0, SEEK_SET) == -1) {
         return PF_FILEERR;
+    }
     if (write(fd, (char *) &page, sizeof(Page)) != sizeof(Page)) {
         close(fd);
         return PF_FILEERR;
     }
-    if (close(fd) < 0)
+    if (close(fd) < 0) {
         return PF_FILEERR;
+    }
     return SUCCESS;
-}
-
-PF_FileHandle *getPF_FileHandle() {
-    auto *p = (PF_FileHandle *) malloc(sizeof(PF_FileHandle));
-    p->bopen = false;
-    return p;
 }
 
 const RC OpenFile(char *fileName, PF_FileHandle *fileHandle) {
     int fd;
     PF_FileHandle *pfilehandle = fileHandle;
-    RC tmp;
     if ((fd = open(fileName, O_RDWR)) < 0) // | _O_BINARY in windows
         return PF_FILEERR;
     pfilehandle->bopen = true;
     pfilehandle->fileName = fileName;
     pfilehandle->fileDesc = fd;
-    if ((tmp = AllocateBlock(&pfilehandle->pHdrFrame)) != SUCCESS) {
-        close(fd);
-        return tmp;
-    }
-    pfilehandle->pHdrFrame->bDirty = false;
-    pfilehandle->pHdrFrame->pinCount = 1;
-    pfilehandle->pHdrFrame->accTime = clock();
-    pfilehandle->pHdrFrame->fileDesc = fd;
-    pfilehandle->pHdrFrame->fileName = fileName;
+    pfilehandle->pHdrPage = new Page;
     if (lseek(fd, 0, SEEK_SET) == -1) {
-        DisposeBlock(pfilehandle->pHdrFrame);
+        delete pfilehandle->pHdrPage;
         close(fd);
         return PF_FILEERR;
     }
-    if (read(fd, &(pfilehandle->pHdrFrame->page), sizeof(Page)) != sizeof(Page)) {
-        DisposeBlock(pfilehandle->pHdrFrame);
+    if (read(fd, pfilehandle->pHdrPage, sizeof(Page)) != sizeof(Page)) {
+        delete pfilehandle->pHdrPage;
         close(fd);
         return PF_FILEERR;
     }
-    pfilehandle->pHdrPage = &(pfilehandle->pHdrFrame->page);
     pfilehandle->pBitmap = pfilehandle->pHdrPage->pData + PF_FILESUBHDR_SIZE;
-    pfilehandle->pFileSubHeader =
-            (PF_FileSubHeader *) pfilehandle->pHdrPage->pData;
+    pfilehandle->pFileSubHeader = (PF_FileSubHeader *) pfilehandle->pHdrPage->pData;
     return SUCCESS;
 }
 
 const RC CloseFile(PF_FileHandle *fileHandle) {
-    RC tmp;
-    fileHandle->pHdrFrame->pinCount--;
-    if ((tmp = ForceAllPages(fileHandle)) != SUCCESS)
-        return tmp;
+    if (lseek(fileHandle->fileDesc, 0, SEEK_SET) != 0) {
+        return PF_FILEERR;
+    }
+    if (write(fileHandle->fileDesc, fileHandle->pHdrPage, sizeof(Page)) != sizeof(Page)) {
+        return PF_FILEERR;
+    }
+    delete fileHandle->pHdrPage;
     if (close(fileHandle->fileDesc) < 0)
         return PF_FILEERR;
     return SUCCESS;
 }
 
-const RC AllocateBlock(Frame **buffer) {
-    int i, min = 0, offset;
-    bool flag;
-    clock_t mintime = 0;
-    for (i = 0; i < PF_BUFFER_SIZE; i++)
-        if (!bf_manager.allocated[i]) {
-            bf_manager.allocated[i] = true;
-            *buffer = bf_manager.frame + i;
-            return SUCCESS;
-        }
-    flag = false;
-    for (i = 0; i < PF_BUFFER_SIZE; i++) {
-        if (bf_manager.frame[i].pinCount != 0)
-            continue;
-        if (!flag) {
-            flag = true;
-            min = i;
-            mintime = bf_manager.frame[i].accTime;
-        }
-        if (bf_manager.frame[i].accTime < mintime) {
-            min = i;
-            mintime = bf_manager.frame[i].accTime;
-        }
-    }
-    if (!flag)
-        return PF_NOBUF;
-    if (bf_manager.frame[min].bDirty) {
-        offset = (bf_manager.frame[min].page.pageNum) * sizeof(Page);
-        if (lseek(bf_manager.frame[min].fileDesc, offset, SEEK_SET) == offset - 1)
-            return PF_FILEERR;
-        if (write(bf_manager.frame[min].fileDesc, &(bf_manager.frame[min].page),
-                  sizeof(Page)) != sizeof(Page))
-            return PF_FILEERR;
-    }
-    *buffer = bf_manager.frame + min;
-    return SUCCESS;
-}
-
-const RC DisposeBlock(Frame *buf) {
-    if (buf->pinCount != 0)
-        return PF_PAGEPINNED;
-    if (buf->bDirty) {
-        if (lseek(buf->fileDesc, buf->page.pageNum * sizeof(Page), SEEK_SET) < 0)
-            return PF_FILEERR;
-        if (write(buf->fileDesc, &(buf->page), sizeof(Page)) != sizeof(Page))
-            return PF_FILEERR;
-    }
-    buf->bDirty = false;
-    bf_manager.allocated[buf - bf_manager.frame] = false;
-    return SUCCESS;
-}
-
-PF_PageHandle *getPF_PageHandle() {
-    auto *p = (PF_PageHandle *) malloc(sizeof(PF_PageHandle));
-    p->bOpen = false;
-    return p;
-}
-
-const RC GetThisPage(PF_FileHandle *fileHandle, PageNum pageNum,
-                     PF_PageHandle *pageHandle) {
-    int i, offset;
-    RC tmp;
+const RC GetThisPage(PF_FileHandle *fileHandle, PageNum pageNum, PF_PageHandle *pageHandle) {
+    int offset;
     PF_PageHandle *pPageHandle = pageHandle;
     if (pageNum > fileHandle->pFileSubHeader->pageCount)
         return PF_INVALIDPAGENUM;
     if ((fileHandle->pBitmap[pageNum / 8] & (1 << (pageNum % 8))) == 0)
         return PF_INVALIDPAGENUM;
     pPageHandle->bOpen = true;
-    for (i = 0; i < PF_BUFFER_SIZE; i++) {
-        if (!bf_manager.allocated[i])
-            continue;
-        if (strcmp(bf_manager.frame[i].fileName, fileHandle->fileName) != 0)
-            continue;
-        if (bf_manager.frame[i].page.pageNum == pageNum) {
-            pPageHandle->pFrame = bf_manager.frame + i;
-            pPageHandle->pFrame->pinCount++;
-            pPageHandle->pFrame->accTime = clock();
-            return SUCCESS;
-        }
-    }
-    if ((tmp = AllocateBlock(&(pPageHandle->pFrame))) != SUCCESS) {
-        return tmp;
-    }
-    pPageHandle->pFrame->bDirty = false;
-    pPageHandle->pFrame->fileDesc = fileHandle->fileDesc;
-    pPageHandle->pFrame->fileName = fileHandle->fileName;
-    pPageHandle->pFrame->pinCount = 1;
-    pPageHandle->pFrame->accTime = clock();
+    pPageHandle->fileDesc = fileHandle->fileDesc;
     offset = pageNum * sizeof(Page);
     if (lseek(fileHandle->fileDesc, offset, SEEK_SET) == offset - 1) {
-        bf_manager.allocated[pPageHandle->pFrame - bf_manager.frame] = false;
         return PF_FILEERR;
     }
-    if ((read(fileHandle->fileDesc, &(pPageHandle->pFrame->page),
-              sizeof(Page))) != sizeof(Page)) {
-        bf_manager.allocated[pPageHandle->pFrame - bf_manager.frame] = false;
+    if ((read(fileHandle->fileDesc, &(pPageHandle->page), sizeof(Page))) != sizeof(Page)) {
         return PF_FILEERR;
     }
     return SUCCESS;
@@ -201,12 +92,9 @@ const RC GetThisPage(PF_FileHandle *fileHandle, PageNum pageNum,
 
 const RC AllocatePage(PF_FileHandle *fileHandle, PF_PageHandle *pageHandle) {
     PF_PageHandle *pPageHandle = pageHandle;
-    RC tmp;
     int byte, bit;
     PageNum i;
-    fileHandle->pHdrFrame->bDirty = true;
-    if ((fileHandle->pFileSubHeader->nAllocatedPages) <=
-        (fileHandle->pFileSubHeader->pageCount)) {
+    if ((fileHandle->pFileSubHeader->nAllocatedPages) <= (fileHandle->pFileSubHeader->pageCount)) {
         for (i = 0; i <= fileHandle->pFileSubHeader->pageCount; i++) {
             byte = i / 8;
             bit = i % 8;
@@ -216,127 +104,73 @@ const RC AllocatePage(PF_FileHandle *fileHandle, PF_PageHandle *pageHandle) {
                 break;
             }
         }
-        if (i <= fileHandle->pFileSubHeader->pageCount)
+        if (i <= fileHandle->pFileSubHeader->pageCount) {
             return GetThisPage(fileHandle, i, pageHandle);
+        }
     }
     fileHandle->pFileSubHeader->nAllocatedPages++;
     fileHandle->pFileSubHeader->pageCount++;
     byte = fileHandle->pFileSubHeader->pageCount / 8;
     bit = fileHandle->pFileSubHeader->pageCount % 8;
     fileHandle->pBitmap[byte] |= (1 << bit);
-    if ((tmp = AllocateBlock(&(pPageHandle->pFrame))) != SUCCESS) {
-        return tmp;
-    }
-    pPageHandle->pFrame->bDirty = false;
-    pPageHandle->pFrame->fileDesc = fileHandle->fileDesc;
-    pPageHandle->pFrame->fileName = fileHandle->fileName;
-    pPageHandle->pFrame->pinCount = 1;
-    pPageHandle->pFrame->accTime = clock();
-    memset(&(pPageHandle->pFrame->page), 0, sizeof(Page));
-    pPageHandle->pFrame->page.pageNum = fileHandle->pFileSubHeader->pageCount;
-    if (lseek(fileHandle->fileDesc, 0, SEEK_END) == -1) {
-        bf_manager.allocated[pPageHandle->pFrame - bf_manager.frame] = false;
-        return PF_FILEERR;
-    }
-    if (write(fileHandle->fileDesc, &(pPageHandle->pFrame->page),
-              sizeof(Page)) != sizeof(Page)) {
-        bf_manager.allocated[pPageHandle->pFrame - bf_manager.frame] = false;
-        return PF_FILEERR;
-    }
 
+    pPageHandle->bOpen = true;
+    pPageHandle->fileDesc = fileHandle->fileDesc;
+    memset(&(pPageHandle->page), 0, sizeof(Page));
+    pPageHandle->page.pageNum = fileHandle->pFileSubHeader->pageCount;
+
+    if (lseek(fileHandle->fileDesc, 0, SEEK_END) == -1) {
+        return PF_FILEERR;
+    }
+    if (write(fileHandle->fileDesc, &(pPageHandle->page), sizeof(Page)) != sizeof(Page)) {
+        return PF_FILEERR;
+    }
     return SUCCESS;
 }
 
 const RC GetPageNum(PF_PageHandle *pageHandle, PageNum *pageNum) {
     if (!pageHandle->bOpen)
         return PF_PHCLOSED;
-    *pageNum = pageHandle->pFrame->page.pageNum;
+    *pageNum = pageHandle->page.pageNum;
     return SUCCESS;
 }
 
 const RC GetData(PF_PageHandle *pageHandle, char **pData) {
     if (!pageHandle->bOpen)
         return PF_PHCLOSED;
-    *pData = pageHandle->pFrame->page.pData;
+    *pData = pageHandle->page.pData;
     return SUCCESS;
 }
 
 const RC DisposePage(PF_FileHandle *fileHandle, PageNum pageNum) {
-    int i;
     char tmp;
-    if (pageNum > fileHandle->pFileSubHeader->pageCount)
+    if (pageNum > fileHandle->pFileSubHeader->pageCount) {
         return PF_INVALIDPAGENUM;
-    if (((fileHandle->pBitmap[pageNum / 8]) & (1 << (pageNum % 8))) == 0)
+    }
+    if (((fileHandle->pBitmap[pageNum / 8]) & (1 << (pageNum % 8))) == 0) {
         return PF_INVALIDPAGENUM;
-    fileHandle->pHdrFrame->bDirty = true;
+    }
     fileHandle->pFileSubHeader->nAllocatedPages--;
     tmp = (char) (1 << (pageNum % 8));
     fileHandle->pBitmap[pageNum / 8] &= ~tmp;
-    for (i = 0; i < PF_BUFFER_SIZE; i++) {
-        if (!bf_manager.allocated[i])
-            continue;
-        if (strcmp(bf_manager.frame[i].fileName, fileHandle->fileName) != 0)
-            continue;
-        if (bf_manager.frame[i].page.pageNum == pageNum) {
-            if (bf_manager.frame[i].pinCount != 0)
-                return PF_PAGEPINNED;
-            bf_manager.allocated[i] = false;
-            return SUCCESS;
-        }
+    return SUCCESS;
+}
+
+const RC MarkDirty(PF_FileHandle *fileHandle, PF_PageHandle *pageHandle) {
+    int offset = pageHandle->page.pageNum * sizeof(Page);
+    if (((fileHandle->pBitmap[pageHandle->page.pageNum / 8]) & (1 << (pageHandle->page.pageNum % 8))) == 0) {
+        return SUCCESS;
+    }
+    if (lseek(pageHandle->fileDesc, offset, SEEK_SET) == offset - 1) {
+        return PF_FILEERR;
+    }
+    if (write(pageHandle->fileDesc, &(pageHandle->page), sizeof(Page)) != sizeof(Page)) {
+        return PF_FILEERR;
     }
     return SUCCESS;
 }
 
-const RC MarkDirty(PF_PageHandle *pageHandle) {
-    pageHandle->pFrame->bDirty = true;
-    return SUCCESS;
-}
 
 const RC UnpinPage(PF_PageHandle *pageHandle) {
-    pageHandle->pFrame->pinCount--;
-    return SUCCESS;
-}
-
-const RC ForcePage(PF_FileHandle *fileHandle, PageNum pageNum) {
-    int i;
-    for (i = 0; i < PF_BUFFER_SIZE; i++) {
-        if (!bf_manager.allocated[i])
-            continue;
-        if (strcmp(bf_manager.frame[i].fileName, fileHandle->fileName) != 0)
-            continue;
-        if (bf_manager.frame[i].page.pageNum == pageNum) {
-            if (bf_manager.frame[i].pinCount != 0)
-                return PF_PAGEPINNED;
-            if (bf_manager.frame[i].bDirty) {
-                if (lseek(fileHandle->fileDesc, pageNum * PF_PAGESIZE, SEEK_SET) < 0)
-                    return PF_FILEERR;
-                if (write(fileHandle->fileDesc, &(bf_manager.frame[i].page),
-                          PF_PAGESIZE) < 0)
-                    return PF_FILEERR;
-            }
-            bf_manager.allocated[i] = false;
-        }
-    }
-    return SUCCESS;
-}
-
-const RC ForceAllPages(PF_FileHandle *fileHandle) {
-    int i, offset;
-    for (i = 0; i < PF_BUFFER_SIZE; i++) {
-        if (!bf_manager.allocated[i])
-            continue;
-        if (strcmp(bf_manager.frame[i].fileName, fileHandle->fileName) != 0)
-            continue;
-
-        if (bf_manager.frame[i].bDirty) {
-            offset = (bf_manager.frame[i].page.pageNum) * sizeof(Page);
-            if (lseek(fileHandle->fileDesc, offset, SEEK_SET) == offset - 1)
-                return PF_FILEERR;
-            if (write(fileHandle->fileDesc, &(bf_manager.frame[i].page),
-                      sizeof(Page)) != sizeof(Page))
-                return PF_FILEERR;
-        }
-        bf_manager.allocated[i] = false;
-    }
     return SUCCESS;
 }

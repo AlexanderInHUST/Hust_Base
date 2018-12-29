@@ -6,7 +6,7 @@
 #define HUST_BASE_KERNEL_SYS_MANAGER_H
 
 #include "IX_Manager.h"
-#include "PF_Manager_No_Buff.h"
+#include "PF_Manager.h"
 #include "RM_Manager.h"
 #include "str.h"
 

@@ -5,7 +5,7 @@
 #ifndef HUST_BASE_KERNEL_RM_MANAGER_H
 #define HUST_BASE_KERNEL_RM_MANAGER_H
 
-#include "PF_Manager_No_Buff.h"
+#include "PF_Manager.h"
 #include "Bit_tools.h"
 #include "math.h"
 #include "str.h"

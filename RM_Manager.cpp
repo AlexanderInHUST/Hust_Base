@@ -303,14 +303,13 @@ RC GetNextRec(RM_FileScan *rmFileScan, RM_Record *rec) {
 }
 
 RC OpenScan(RM_FileScan *rmFileScan, RM_FileHandle *fileHandle, int conNum, Con *conditions) {
-    if (fileHandle->rm_fileSubHeader->nRecords == 0) {
-        return RM_EOF;
-    }
-
     rmFileScan->bOpen = true;
     rmFileScan->pRMFileHandle = fileHandle;
     rmFileScan->conNum = conNum;
     rmFileScan->conditions = conditions;
+    if (fileHandle->rm_fileSubHeader->nRecords == 0) {
+        return RM_EOF;
+    }
 
     char *allocatedBitmap = fileHandle->pf_fileHandle->pBitmap;
     int curPos = 0;
