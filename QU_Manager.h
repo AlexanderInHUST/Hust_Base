@@ -19,6 +19,18 @@ typedef struct SelResult{
     SelResult * next_res;
 }SelResult;
 
+typedef struct RIDSets {
+    RID * rids;
+    int * status;   // 0 -> death 1 -> inactive 2 -> active
+    int num;
+}RIDSets;
+
+typedef struct ResultsSets {
+    bool * is_alive;
+    char ** data;
+    int num;
+} ResultsSets;
+
 void Init_Result(SelResult * res);
 void Destory_Result(SelResult * res);
 

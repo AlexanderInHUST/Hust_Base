@@ -734,3 +734,30 @@ RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrL
     CloseSysCols();
     return SUCCESS;
 }
+
+RC GetTableInfo(char *relName, int *colNum) {
+    Con table_condition;
+    table_condition.bLhsIsAttr = 1;
+    table_condition.bRhsIsAttr = 0;
+    table_condition.compOp = EQual;
+    table_condition.attrType = chars;
+    table_condition.LattrOffset = 0;
+    table_condition.LattrLength = 21;
+    table_condition.Rvalue = relName;
+
+    OpenSysTables();
+    RM_Record table_record;
+    RM_FileScan table_scan;
+    OpenScan(&table_scan, table_file_handle, 1, &table_condition);
+    RC is_existed = GetNextRec(&table_scan, &table_record);
+    if (is_existed != SUCCESS) {
+        DEBUG_LOG("Return Code: %d Table \"%s\" doesn't exist\n", is_existed, relName);
+
+        CloseScan(&table_scan);
+        CloseSysTables();
+        return is_existed;
+    }
+    memcpy(&colNum, table_record.pData + TABLENAME_SIZE, sizeof(int));
+    CloseScan(&table_scan);
+    CloseSysTables();
+}

@@ -87,4 +87,6 @@ RC RM_OpenFile(char *fileName, RM_FileHandle *fileHandle);
 
 RC RM_CreateFile(char *fileName, int recordSize);
 
+bool checkConditions(RM_FileScan *rm_fileScan, RM_Record *record);
+
 #endif //HUST_BASE_KERNEL_RM_MANAGER_H

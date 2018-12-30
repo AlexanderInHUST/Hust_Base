@@ -286,9 +286,9 @@ void addToList(int keyLength, char *keyList, int list_size, char *key, int pos) 
     if (keyLength == sizeof(PageNum)) {
         PageNum tmp = 0;
         memcpy(&tmp, key, sizeof(PageNum));
-        if (tmp == 0) {
-            printf("??");
-        }
+//        if (tmp == 0) {
+//            printf("??");
+//        }
     }
 
     for (int i = list_size - 1; i >= pos; i--) {
@@ -314,9 +314,9 @@ void setToList(int keyLength, char *keyList, char *key, int pos) {
     if (keyLength == sizeof(PageNum)) {
         PageNum tmp = 0;
         memcpy(&tmp, key, sizeof(PageNum));
-        if (tmp == 0) {
-            printf("??");
-        }
+//        if (tmp == 0) {
+//            printf("??");
+//        }
     }
 
     memcpy(keyList + keyLength * pos, key, sizeof(char) * keyLength);
@@ -444,14 +444,6 @@ RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid) {
         bool shouldCreateNew = parentPageNum == 0;
         if (shouldCreateNew) {
             parentPageNum = createNewNode(indexHandle);
-        }
-
-        if (aimNodePageNum == 204) {
-            printf("???");
-        }
-
-        if (parentPageNum == 204) {
-            printf("???");
         }
 
         parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
@@ -645,20 +637,20 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid, int fla
 //    auto headerPage = new PF_PageHandle;
 //    GetThisPage(indexHandle->fileHandle, 1, headerPage);
 
-    if (flag == 13) {
-        PageNum parentPageNum;
-        auto parentPage = new PF_PageHandle;
-        IX_Node * parentNode;
-        char * parentKeyList, * parentChildren;
-        char * parent_src_data;
-
-        parentPageNum = 37;
-        parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
-        GetData(parentPage, &parent_src_data);
-        parentKeyList = parent_src_data + parentNode->keys_offset;
-        parentChildren = parent_src_data + parentNode->rids_offset;
-        printf("??");
-    }
+//    if (flag == 13) {
+//        PageNum parentPageNum;
+//        auto parentPage = new PF_PageHandle;
+//        IX_Node * parentNode;
+//        char * parentKeyList, * parentChildren;
+//        char * parent_src_data;
+//
+//        parentPageNum = 37;
+//        parentNode = getIxNode(indexHandle, parentPageNum, parentPage);
+//        GetData(parentPage, &parent_src_data);
+//        parentKeyList = parent_src_data + parentNode->keys_offset;
+//        parentChildren = parent_src_data + parentNode->rids_offset;
+//        printf("??");
+//    }
 
     char realKey[keyLength];
     memset(realKey, 0, (size_t) keyLength);
@@ -860,21 +852,19 @@ RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid, int fla
                 numAsChild++;
             } // to ensure aim node always has a left sibling
 
-            if (aimNodePageNum == 3282) {
-                PageNum tmpNum;
-                auto tmpPage = new PF_PageHandle;
-                IX_Node * tmpNode;
-                char * tmpKeyList, * tmpChildren;
-                char * tmp_src_data;
-
-                tmpNum = 3282;
-                tmpNode = getIxNode(indexHandle, tmpNum, tmpPage);
-                GetData(tmpPage, &tmp_src_data);
-                tmpKeyList = tmp_src_data + tmpNode->keys_offset;
-                tmpChildren = tmp_src_data + tmpNode->rids_offset;
-                printf("??");
-                printf("???");
-            }
+//            if (aimNodePageNum == 3282) {
+//                PageNum tmpNum;
+//                auto tmpPage = new PF_PageHandle;
+//                IX_Node * tmpNode;
+//                char * tmpKeyList, * tmpChildren;
+//                char * tmp_src_data;
+//
+//                tmpNum = 3282;
+//                tmpNode = getIxNode(indexHandle, tmpNum, tmpPage);
+//                GetData(tmpPage, &tmp_src_data);
+//                tmpKeyList = tmp_src_data + tmpNode->keys_offset;
+//                tmpChildren = tmp_src_data + tmpNode->rids_offset;
+//            }
 
             if (aimNode == nullptr) {
                 return FAIL; // this would never happen
@@ -1155,9 +1145,9 @@ void generateTreeNode (IX_IndexHandle * indexHandle, PageNum pageNum, Tree_Node 
         char *curChild = rids + i * sizeof(PageNum);
         PageNum curChildPageNum = 0;
         memcpy(&curChildPageNum, curChild, sizeof(PageNum));
-        if (*curChild == (char) 16) {
-            printf("??");
-        }
+//        if (*curChild == (char) 16) {
+//            printf("??");
+//        }
         generateTreeNode(indexHandle, curChildPageNum, &aim_node->firstChild[i]);
         aim_node->firstChild[i].parent = aim_node;
     } // create all children
