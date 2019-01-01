@@ -47,6 +47,7 @@ void InitializeResultsSet(ResultsSets * set, int num, int value_len) {
     set->data = new char * [num];
     set->num = num;
     for (int i = 0; i < num; i++) {
+        set->is_alive[i] = true;
         set->data[i] = new char[value_len];
     }
 }
@@ -99,9 +100,57 @@ bool MakeOneActive(RIDSets * set, RID aim) {
     return false;
 }
 
-void DestoryRIDSets(RIDSets * set) {
+void DestroyRIDSets(RIDSets * set) {
     delete[] set->rids;
     delete[] set->status;
+}
+
+bool GetAttrOffsetLength(char * rel_name, char * attr_name, int nRelations, char ** relations,
+        int * col_num, char *** col_name, int ** col_length, int ** col_offset, AttrType ** col_types, int * table_offset,
+        int * aim_offset, int * aim_length, AttrType * aim_type) {
+    int aim_relation_pos = -1, aim_attr_pos = -1;
+    for (int i = 0; i < nRelations; i++) {
+        if (strcmp(relations[i], rel_name) == 0) {
+            aim_relation_pos = i;
+            break;
+        }
+    } // whether has specific relation requirement
+
+    bool is_found = false;
+    if (aim_relation_pos == -1) {
+        for (int i = 0; i < nRelations; i++) {
+            for (int j = 0; j < col_num[i]; j++) {
+                if (strcmp(col_name[i][j], attr_name) == 0) {
+                    aim_relation_pos = i;
+                    aim_attr_pos = j;
+                    is_found = true;
+                    break;
+                }
+            }
+            if (is_found) {
+                break;
+            }
+        }
+        if (!is_found) {
+            return false; // no such attr at all
+        }
+    } else {
+        for (int i = 0; i < col_num[aim_relation_pos]; i++) {
+            if (strcmp(col_name[aim_relation_pos][i], attr_name) == 0) {
+                aim_attr_pos = i;
+                is_found = true;
+                break;
+            }
+        }
+        if (!is_found) {
+            return false;
+        }
+    } // find out where they are
+
+    * aim_offset = table_offset[aim_relation_pos] + col_offset[aim_relation_pos][aim_attr_pos];
+    * aim_length = col_length[aim_relation_pos][aim_attr_pos];
+    * aim_type = col_types[aim_relation_pos][aim_attr_pos];
+    return true;
 }
 
 RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, int nConditions, Condition *conditions, SelResult *res) {
@@ -119,6 +168,7 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
     auto rid_sets = new RIDSets[nRelations];
     auto table_offset = new int[nRelations];
     auto table_value_num = new int[nRelations];
+    auto table_round_num = new int[nRelations];
 
     for (int i = 0; i < nRelations; i++) {
         RC table_exist = GetTableInfo(relations[i], &col_num[i]);
@@ -138,16 +188,16 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
             col_indx_name[i][j] = new char[255];
         }
         GetColsInfo(relations[i], col_name[i], col_types[i], col_length[i], col_offset[i], col_is_indx[i], col_indx_name[i]);
-    }
+    } // get all related col info
 
     for (int i = 0; i < nConditions; i++) {
         auto cur_con = conditions[i];
         if (cur_con.bRhsIsAttr == 0 && cur_con.bLhsIsAttr == 0) {
-            can_be_reduced[i] = 2;
+            can_be_reduced[i] = 2; // this condition could be deleted
         } else if (!(cur_con.bRhsIsAttr == 1 && cur_con.bLhsIsAttr == 1)) {
-            can_be_reduced[i] = 1;
+            can_be_reduced[i] = 1; // this condition could be reduced
         } else {
-            can_be_reduced[i] = 0;
+            can_be_reduced[i] = 0; // we cannot do anything at least right now
             continue;
         } // to check whether this condition could be reduced
 
@@ -181,11 +231,11 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
                             aim_relation_pos = j;
                             aim_attr_pos = col_pos;
                             is_done = true;
-                            break;
+                            break; // if one's rel and col name both equal, it is the col we need.
                         }
-                        is_duplicate = is_found;
+                        is_duplicate = is_found; // would be true when found the 2nd one
                         is_found = true;
-                        if (!is_duplicate) {
+                        if (!is_duplicate) { // record the first info (there should be sql_syntax error when 2nd time)
                             aim_relation_pos = j;
                             aim_attr_pos = col_pos;
                         }
@@ -368,8 +418,10 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
 
         if (i == 0) {
             table_offset[i] = 0;
+            table_round_num[i] = 1;
         } else {
             table_offset[i] = col_offset[i - 1][col_num[i - 1] - 1] + table_offset[i - 1];
+            table_round_num[i] = table_round_num[i - 1] * col_num[i - 1];
         } // get table offset for Descartes
     } // get rest possible result
 
@@ -394,13 +446,15 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
         RM_FileHandle rm_fileHandle;
         RM_OpenFile(full_tab_name, &rm_fileHandle);
 
-        for (int j = 0; j < rid_sets[i].num; j++) {
-            auto cur_rid = rid_sets[i].rids[j];
-            RM_Record cur_record;
-            GetRec(&rm_fileHandle, &cur_rid, &cur_record);
-            for (int k = 0; k < table_value_num[i]; k++) {
-                memcpy(resultsSets.data[line_num] + table_offset[i], cur_record.pData, (size_t) col_offset[i][col_num[i] - 1]);
-                line_num++;
+        for (int round = 0; round < table_round_num[i]; round++) {
+            for (int j = 0; j < rid_sets[i].num; j++) {
+                auto cur_rid = rid_sets[i].rids[j];
+                RM_Record cur_record;
+                GetRec(&rm_fileHandle, &cur_rid, &cur_record);
+                for (int k = 0; k < table_value_num[i]; k++) {
+                    memcpy(resultsSets.data[line_num] + table_offset[i], cur_record.pData, (size_t) col_offset[i][col_num[i] - 1]);
+                    line_num++;
+                }
             }
         }
         RM_CloseFile(&rm_fileHandle);
@@ -409,22 +463,95 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
     RM_Record dump_record;
     for (int i = 0; i < nConditions; i++) {
         if (can_be_reduced[i] == 0) {
+            int left_attr_offset, left_attr_length;
+            int right_attr_offset, right_attr_length;
+            AttrType left_attr_type, right_attr_type;
             auto cur_con = conditions[i];
-            
+            bool is_valid = true;
+            is_valid &= GetAttrOffsetLength(cur_con.lhsAttr.relName, cur_con.lhsAttr.attrName, nRelations, relations, col_num, col_name, col_length, col_offset, col_types, table_offset, &left_attr_offset, &left_attr_length, &left_attr_type);
+            is_valid &= GetAttrOffsetLength(cur_con.rhsAttr.relName, cur_con.rhsAttr.attrName, nRelations, relations, col_num, col_name, col_length, col_offset, col_types, table_offset, &right_attr_offset, &right_attr_length, &right_attr_type);
+            is_valid &= (left_attr_type == right_attr_type);
+            if (!is_valid) {
+                return SQL_SYNTAX; // no such attr
+            }
 
+            Con dump_con;
+            dump_con.bLhsIsAttr = 1;
+            dump_con.LattrOffset = left_attr_offset;
+            dump_con.LattrLength = left_attr_length;
+            dump_con.bRhsIsAttr = 1;
+            dump_con.RattrOffset = right_attr_offset;
+            dump_con.RattrLength = right_attr_length;
+            dump_con.attrType = left_attr_type;
+            dump_con.compOp = cur_con.op; // prepare the condition
+
+            RM_FileScan dump_scan;
+            dump_scan.conNum = 1;
+            dump_scan.conditions = &dump_con;
 
             for (int j = 0; j < resultsSets.num; j++) {
                 if (resultsSets.is_alive[j]) {
                     dump_record.pData = resultsSets.data[j];
-                    Con dump_con;
-                    dump_con.bLhsIsAttr = 1;
-                    dump_con.bRhsIsAttr = 1;
+                    resultsSets.is_alive[j] = checkConditions(&dump_scan, &dump_record);
                 }
             }
+        }
+    } // check all conditions
+
+    auto result_attr_offset = new int[nSelAttrs];
+    auto result_attr_length = new int[nSelAttrs];
+    auto result_attr_types = new AttrType[nSelAttrs];
+    bool is_valid = true;
+    for (int i = 0; i < nSelAttrs; i++) {
+        is_valid &= GetAttrOffsetLength(selAttrs[i]->relName, selAttrs[i]->attrName, nRelations, relations, col_num, col_name, col_length, col_offset, col_types, table_offset, &result_attr_offset[i], &result_attr_length[i], &result_attr_types[i]);
+    }
+    if (!is_valid) {
+        return SQL_SYNTAX; // no such attr
+    }
+
+    int result_count = 0;
+    auto cur_result = res;
+    Init_Result(res);
+    for (int i = 0; i < resultsSets.num; i++) {
+        if (result_count == 0) {
+            cur_result->col_num = nSelAttrs;
+            cur_result->row_num = 0;
+            for (int j = 0; j < nSelAttrs; j++) {
+                cur_result->type[j] = result_attr_types[j];
+                cur_result->length[j] = result_attr_length[j];
+                strcpy(cur_result->fields[j], selAttrs[j]->attrName);
+            } // initialize current result
+        }
+
+        if (!resultsSets.is_alive[i]) {
+            continue;
+        } else {
+            cur_result->res[result_count] = new char * [nSelAttrs];
+            for (int j = 0; j < nSelAttrs; j++) {
+                cur_result->res[result_count][j] = new char[result_attr_length[j]];
+                memcpy(cur_result->res[result_count][j], resultsSets.data[i] + result_attr_offset[j], (size_t) result_attr_length[j]);
+            }
+            result_count++;
+            cur_result->row_num++;
+        }
+
+        if (result_count == 100) {
+            auto next_res = new SelResult;
+            Init_Result(res);
+            result_count = 0;
+            cur_result->next_res = next_res;
+            cur_result = next_res;
         }
     }
 
     DestroyColsInfo(col_name, col_types, col_length, col_offset, col_is_indx, col_indx_name, nRelations, col_num);
+    DestroyResultsSet(&resultsSets);
+    DestroyRIDSets(rid_sets);
+
+    delete[] result_attr_offset;
+    delete[] result_attr_length;
+    delete[] result_attr_types;
+
     delete[] col_num;
     delete[] col_name;
     delete[] col_length;
@@ -432,5 +559,11 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
     delete[] col_types;
     delete[] col_is_indx;
     delete[] col_indx_name;
-    return SQL_SYNTAX;
+
+    delete[] can_be_reduced;
+    delete[] has_be_loaded;
+    delete[] rid_sets;
+    delete[] table_offset;
+    delete[] table_value_num;
+    return SUCCESS;
 }
