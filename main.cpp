@@ -60,19 +60,19 @@ int main() {
     rid.slotNum = 1;
     int testData = 42;
 
-//    for (int i = 0; i < 50; i++) {
-//        rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &i, &rid);
-//    }
-//    printf("insert done\n");
-//    for (int i = 0; i < 30; i++) {
-//        rid.pageNum = i;
-//        DeleteEntry(ix_indexHandle, (char *) &i, &rid, i);
-//    }
-//    for (int i = 0; i < 20; i++) {
-//        rid.pageNum = i;
-//        InsertEntry(ix_indexHandle, (char *) &i, &rid);
-//    }
+    for (int i = 0; i < 50; i++) {
+        rid.pageNum = i;
+        InsertEntry(ix_indexHandle, (char *) &i, &rid);
+    }
+    printf("insert done\n");
+    for (int i = 0; i < 30; i++) {
+        rid.pageNum = i;
+        DeleteEntry(ix_indexHandle, (char *) &i, &rid, i);
+    }
+    for (int i = 0; i < 20; i++) {
+        rid.pageNum = i;
+        InsertEntry(ix_indexHandle, (char *) &i, &rid);
+    }
 
     int tmp = 42;
     auto indexScan = new IX_IndexScan;

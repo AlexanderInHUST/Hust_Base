@@ -535,7 +535,7 @@ RC Select(int nSelAttrs, RelAttr **selAttrs, int nRelations, char **relations, i
             cur_result->row_num++;
         }
 
-        if (result_count == 100) {
+        if (result_count == MAX_RECORD_LINES_NUM) {
             auto next_res = new SelResult;
             Init_Result(res);
             result_count = 0;
