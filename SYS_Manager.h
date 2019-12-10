@@ -1,21 +1,19 @@
-//
-// Created by 唐艺峰 on 2018/12/18.
-//
-
-#ifndef HUST_BASE_KERNEL_SYS_MANAGER_H
-#define HUST_BASE_KERNEL_SYS_MANAGER_H
+#ifndef SYS_MANAGER_H_H
+#define SYS_MANAGER_H_H
 
 #include "IX_Manager.h"
 #include "PF_Manager.h"
 #include "RM_Manager.h"
+#include "EditArea.h"
 #include "str.h"
 
 extern char sys_dbpath[255];
 extern char sys_dbname[255];
-extern RM_FileHandle * table_file_handle, * col_file_handle;
+extern RM_FileHandle * table_file_handle, *col_file_handle;
+
+#define ATTRCOUNT_SIZE  4
 
 #define TABLENAME_SIZE  21
-#define ATTRCOUNT_SIZE  4
 #define ATTRNAME_SIZE   21
 #define ATTRTYPE_SIZE   4
 #define ATTRLENGTH_SIZE 4
@@ -30,36 +28,24 @@ extern RM_FileHandle * table_file_handle, * col_file_handle;
 #define TABLE_ROW_SIZE  ((size_t) (21 + 4))
 #define COL_ROW_SIZE    ((size_t) (21 + 21 + 4 + 4 + 4 + 1 + 21))
 
-//void ExecuteAndMessage(char * ,CEditArea*);
-//bool CanButtonClick();
+void ExecuteAndMessage(char * ,CEditArea*);
+bool CanButtonClick();
 
-RC CreateDB(char *dbpath, char *dbname);
-
+RC CreateDB(char *dbpath,char *dbname);
 RC DropDB(char *dbname);
-
-RC OpenDB(char *dbname);
-
+RC OpenDB(char *dbpath, char *dbname);
 RC CloseDB();
 
-RC execute(char *sql);
+RC execute(char * sql);
 
-RC CreateTable(char *relName, int attrCount, AttrInfo *attributes);
-
+RC CreateTable(char *relName,int attrCount,AttrInfo *attributes);
 RC DropTable(char *relName);
-
-RC CreateIndex(char *indexName, char *relName, char *attrName);
-
+RC CreateIndex(char *indexName,char *relName,char *attrName);
 RC DropIndex(char *indexName);
-
-RC Insert(char *relName, int nValues, Value *values);
-
-RC Delete(char *relName, int nConditions, Condition *conditions);
-
-RC Update(char *relName, char *attrName, Value *value, int nConditions, Condition *conditions);
-
-RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrLength, int * attrOffset,
-               bool * ixFlag, char ** indexName);
-
+RC Insert(char *relName,int nValues,Value * values);
+RC Delete(char *relName,int nConditions,Condition *conditions);
+RC Update(char *relName,char *attrName,Value *value,int nConditions,Condition *conditions);
+RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrLength, int * attrOffset, bool * ixFlag, char ** indexName);
 RC GetTableInfo(char *relName, int *colNum);
 
-#endif //HUST_BASE_KERNEL_SYS_MANAGER_H
+#endif

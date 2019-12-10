@@ -1,0 +1,430 @@
+﻿  StdAfx.cpp
+  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
+  Bits_tools.cpp
+  Condition_tool.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  EditArea.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.cpp(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\ix_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.cpp(122): warning C4101: 'rc': unreferenced local variable
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.cpp(230): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.cpp(243): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+  HustBase.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\hustbase.cpp(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\ix_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\hustbase.cpp(69): warning C4996: 'CWinApp::Enable3dControls': CWinApp::Enable3dControls is no longer needed. You should remove this call.
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxwin2.inl(1074): note: see declaration of 'CWinApp::Enable3dControls'
+  HustBaseDoc.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  HustBaseView.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\hustbaseview.cpp(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  IX_Manager.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\ix_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  MainFrm.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  PF_Manager.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(8): warning C4996: 'open': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _open. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(516): note: see declaration of 'open'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(13): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _close. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(459): note: see declaration of 'close'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(14): warning C4996: 'open': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _open. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(516): note: see declaration of 'open'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(21): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _lseek. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(503): note: see declaration of 'lseek'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(24): warning C4996: 'write': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _write. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(558): note: see declaration of 'write'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(25): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _close. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(459): note: see declaration of 'close'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(28): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _close. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(459): note: see declaration of 'close'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(37): warning C4996: 'open': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _open. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(516): note: see declaration of 'open'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(43): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _lseek. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(503): note: see declaration of 'lseek'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(45): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _close. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(459): note: see declaration of 'close'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(48): warning C4996: 'read': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _read. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(523): note: see declaration of 'read'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(50): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _close. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(459): note: see declaration of 'close'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(59): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _lseek. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(503): note: see declaration of 'lseek'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(62): warning C4996: 'write': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _write. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(558): note: see declaration of 'write'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(66): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _close. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(459): note: see declaration of 'close'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(81): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _lseek. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(503): note: see declaration of 'lseek'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(84): warning C4996: 'read': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _read. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(523): note: see declaration of 'read'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(94): warning C4018: '<=': signed/unsigned mismatch
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(119): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _lseek. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(503): note: see declaration of 'lseek'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(122): warning C4996: 'write': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _write. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(558): note: see declaration of 'write'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(161): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _lseek. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(503): note: see declaration of 'lseek'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\pf_manager.cpp(164): warning C4996: 'write': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _write. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\corecrt_io.h(558): note: see declaration of 'write'
+  QU_Manager.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\ix_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(275): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(276): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(277): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(278): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(279): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(280): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(281): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(330): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(331): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(332): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(333): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(334): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(414): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(428): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(429): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(430): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(431): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(432): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(490): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(491): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(492): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(493): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(494): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(595): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.cpp(605): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+  RM_Manager.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  SYS_Manager.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\ix_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\qu_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(60): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(86): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(94): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(100): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(106): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(24): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(208): note: see declaration of 'fopen'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(83): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note: see declaration of 'sprintf'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(91): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note: see declaration of 'sprintf'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(313): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(314): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(321): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(322): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(341): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(342): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(344): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(345): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(350): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(351): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(361): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(363): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(365): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(366): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(368): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(369): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(382): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(383): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(422): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(438): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(440): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(454): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(455): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(456): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(457): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(458): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(395): warning C4101: 'col_num': unreferenced local variable
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(516): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(517): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(518): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(520): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(521): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(522): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(523): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(597): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(602): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(603): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(604): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(605): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(606): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(607): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(608): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(617): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(618): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(619): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(620): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(621): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(689): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(691): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(696): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(697): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(698): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(699): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(700): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(768): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(775): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(776): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(777): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(778): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(779): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(803): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(804): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(805): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(806): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(807): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(808): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(809): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(875): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(876): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(877): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(878): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(879): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(915): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(916): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(917): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(918): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(919): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(920): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(921): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(978): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(997): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(998): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(999): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1000): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1001): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1046): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1047): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1048): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1049): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1050): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1051): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1052): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1095): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1102): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+  TableList.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\tablelist.cpp(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rm_manager.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\tablelist.cpp(184): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\tablelist.cpp(185): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\tablelist.cpp(186): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(90): note: see declaration of 'strcat'
+  TreeList.cpp
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\treelist.cpp(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\editarea.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\str.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\rc.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Generating Code...
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(1136): warning C4715: 'GetTableInfo': not all control paths return a value
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\sys_manager.cpp(309): warning C4715: 'execute': not all control paths return a value
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\ix_manager.cpp(239): warning C4715: 'checkConditions': not all control paths return a value
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\hustbasedoc.cpp(50): warning C4700: uninitialized local variable 'pos' used
+  lex.yy.c
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(55): warning C4005: 'yyconst': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(53): note: see previous definition of 'yyconst'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(62): warning C4005: 'YY_PROTO': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(60): note: see previous definition of 'YY_PROTO'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(1712): warning C4005: 'yyless': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(133): note: see previous definition of 'yyless'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\lex.yy.c(1797): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  parse.c
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\parse.c(96): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  yacc_sql.tab.c
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(133): warning C4005: 'YYERROR_VERBOSE': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(131): note: see previous definition of 'YYERROR_VERBOSE'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(258): warning C4005: 'YYSIZE_T': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(256): note: see previous definition of 'YYSIZE_T'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(264): warning C4005: 'YYSIZE_T': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(258): note: see previous definition of 'YYSIZE_T'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(278): warning C4005: 'YY_': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(274): note: see previous definition of 'YY_'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(286): warning C4005: 'YYUSE': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(284): note: see previous definition of 'YYUSE'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(318): warning C4005: 'YYSTACK_ALLOC': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(314): note: see previous definition of 'YYSTACK_ALLOC'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(323): warning C4005: 'YYSTACK_ALLOC': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(318): note: see previous definition of 'YYSTACK_ALLOC'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(346): warning C4005: 'YYSTACK_ALLOC': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(323): note: see previous definition of 'YYSTACK_ALLOC'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(347): warning C4005: 'YYSTACK_FREE': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(337): note: see previous definition of 'YYSTACK_FREE'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(349): warning C4005: 'YYSTACK_ALLOC_MAXIMUM': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(343): note: see previous definition of 'YYSTACK_ALLOC_MAXIMUM'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(411): warning C4005: 'YYCOPY': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(402): note: see previous definition of 'YYCOPY'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(791): warning C4005: 'YY_LOCATION_PRINT': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(789): note: see previous definition of 'YY_LOCATION_PRINT'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(801): warning C4005: 'YYLEX': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(799): note: see previous definition of 'YYLEX'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(961): warning C4005: 'YYDPRINTF': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(816): note: see previous definition of 'YYDPRINTF'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(962): warning C4005: 'YY_SYMBOL_PRINT': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(827): note: see previous definition of 'YY_SYMBOL_PRINT'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(963): warning C4005: 'YY_STACK_PRINT': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(917): note: see previous definition of 'YY_STACK_PRINT'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(964): warning C4005: 'YY_REDUCE_PRINT': macro redefinition
+  c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(955): note: see previous definition of 'YY_REDUCE_PRINT'
+c:\users\97639\onedrive\桌面\hustbase\hustbase（2018版）\yacc_sql.tab.c(2253): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  Generating Code...
