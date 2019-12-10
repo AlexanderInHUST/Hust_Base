@@ -34,6 +34,7 @@ typedef struct {
     bool bOpen;
     PF_FileHandle * fileHandle; // fix here
     IX_FileHeader * fileHeader; // fix here
+    PF_PageHandle * headerPage;
 } IX_IndexHandle;
 
 typedef struct {
@@ -69,7 +70,7 @@ RC OpenIndex(const char *fileName, IX_IndexHandle *indexHandle);
 RC CloseIndex(IX_IndexHandle *indexHandle);
 
 RC InsertEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid);
-RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid);
+RC DeleteEntry(IX_IndexHandle *indexHandle, char *pData, const RID *rid, int flag);
 RC OpenIndexScan(IX_IndexScan *indexScan, IX_IndexHandle *indexHandle,
                  CompOp compOp, char *value);
 RC IX_GetNextEntry(IX_IndexScan *indexScan, RID *rid);

@@ -560,13 +560,14 @@ RC Delete(char *relName, int nConditions, Condition *conditions) {
             strcat(full_index_name, ".");
             strcat(full_index_name, col_indx_name[i]);
 
+            auto ix_indexHandle = new IX_IndexHandle;
+            OpenIndex(full_index_name, ix_indexHandle);
             for (int j = 0; j < removed_num; j++) {
-                auto ix_indexHandle = new IX_IndexHandle;
-                OpenIndex(full_index_name, ix_indexHandle);
-                DeleteEntry(ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j]);
-                CloseIndex(ix_indexHandle);
-                delete ix_indexHandle;
+                printf("Deleting %d\n", j);
+                DeleteEntry(ix_indexHandle, removed_data[j] + col_offset[i], &removed_rid[j], j);
             }
+            CloseIndex(ix_indexHandle);
+            delete ix_indexHandle;
         }
     }
 
@@ -677,18 +678,15 @@ RC Update(char *relName, char *attrName, Value *value, int nConditions, Conditio
         strcat(full_index_name, ".");
         strcat(full_index_name, col_indx_name[updated_attr_pos]);
 
+        auto ix_indexHandle = new IX_IndexHandle;
+        OpenIndex(full_index_name, ix_indexHandle);
         for (int j = 0; j < removed_num; j++) {
             printf("running %d\n", j);
-            if (j == 13) {
-                printf("??");
-            }
-            auto ix_indexHandle = new IX_IndexHandle;
-            OpenIndex(full_index_name, ix_indexHandle);
-            DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j]);
+            DeleteEntry(ix_indexHandle, old_attr_data[j], &removed_rid[j], j);
             InsertEntry(ix_indexHandle, removed_data[j] + col_offset[updated_attr_pos], &removed_rid[j]);
-            CloseIndex(ix_indexHandle);
-            delete ix_indexHandle;
         }
+        CloseIndex(ix_indexHandle);
+        delete ix_indexHandle;
     }
 
     for (int i = 0; i < col_num; i++) {
@@ -735,4 +733,31 @@ RC GetColsInfo(char *relName, char ** attrName, AttrType * attrType, int * attrL
     CloseScan(&col_scan);
     CloseSysCols();
     return SUCCESS;
+}
+
+RC GetTableInfo(char *relName, int *colNum) {
+    Con table_condition;
+    table_condition.bLhsIsAttr = 1;
+    table_condition.bRhsIsAttr = 0;
+    table_condition.compOp = EQual;
+    table_condition.attrType = chars;
+    table_condition.LattrOffset = 0;
+    table_condition.LattrLength = 21;
+    table_condition.Rvalue = relName;
+
+    OpenSysTables();
+    RM_Record table_record;
+    RM_FileScan table_scan;
+    OpenScan(&table_scan, table_file_handle, 1, &table_condition);
+    RC is_existed = GetNextRec(&table_scan, &table_record);
+    if (is_existed != SUCCESS) {
+        DEBUG_LOG("Return Code: %d Table \"%s\" doesn't exist\n", is_existed, relName);
+
+        CloseScan(&table_scan);
+        CloseSysTables();
+        return is_existed;
+    }
+    memcpy(&colNum, table_record.pData + TABLENAME_SIZE, sizeof(int));
+    CloseScan(&table_scan);
+    CloseSysTables();
 }

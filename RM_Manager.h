@@ -42,6 +42,7 @@ typedef struct {//文件句柄
     bool bOpen;//句柄是否打开（是否正在被使用）
     PF_FileHandle *pf_fileHandle;
     RM_FileSubHeader *rm_fileSubHeader;
+    PF_PageHandle *pf_headerPage;
     char *header_bitmap;
 } RM_FileHandle;
 
@@ -85,5 +86,7 @@ RC RM_CloseFile(RM_FileHandle *fileHandle);
 RC RM_OpenFile(char *fileName, RM_FileHandle *fileHandle);
 
 RC RM_CreateFile(char *fileName, int recordSize);
+
+bool checkConditions(RM_FileScan *rm_fileScan, RM_Record *record);
 
 #endif //HUST_BASE_KERNEL_RM_MANAGER_H
